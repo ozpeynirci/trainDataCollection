@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d5fd6">
-<title>Tren Takip</title>
+<title>Vagonda · Trenin şu an nerede?</title>
 <style>
   :root{
     --bg:#f3f4f6; --card:#fff; --ink:#18212c; --mute:#677283; --line:#e3e7ec;
@@ -129,8 +129,8 @@
     <div class="hleft">
       <button class="back" id="backBtn" type="button" aria-label="Tüm trenler" hidden></button>
       <div style="min-width:0">
-        <h1 id="hTitle">Tren Takip</h1>
-        <div class="route-sub" id="hSub">Anahat trenleri, canlı konum</div>
+        <h1 id="hTitle">Vagonda</h1>
+        <div class="route-sub" id="hSub">Trenin şu an nerede?</div>
       </div>
     </div>
     <div class="hright"><div class="live" id="live" hidden><span class="dot"></span><span class="lt" id="liveText">Tarifeye göre</span></div><button class="info" id="infoBtn" type="button" aria-label="Hakkında">i</button></div>
@@ -208,7 +208,7 @@ const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleD
 // canlı veri
 let LIVE={}; // "no|service" -> status
 async function fetchLive(){
-  try{ const r=await fetch("/api/status",{cache:"no-store"}); if(!r.ok) throw 0; const j=await r.json(); LIVE = (j && j.trains) || {}; }
+  try{ const r=await fetch("/api/status"); if(!r.ok) throw 0; const j=await r.json(); LIVE = (j && j.trains) || {}; }
   catch(e){ LIVE={}; }
   render();
 }
@@ -450,10 +450,10 @@ function route(){
     if(VIEW!==T){ VIEW=T; track("train",{s:T.slug}); setupMap(T); chosenService=null; lastStopsKey=""; firstFrame=true; allPanel.hidden=true; allBtn.setAttribute("aria-expanded",false); }
     $("home").hidden=true; $("trainView").hidden=false; $("backBtn").hidden=false;
     $("hTitle").textContent=T.name; $("hSub").innerHTML=`${T.from} → ${T.to}<span class="dsk"> · her gün ${T.stops[0].d}</span>`;
-    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)}`;
+    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)} · Vagonda`;
   } else {
     VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true; $("live").hidden=true;
-    $("hTitle").textContent="Tren Takip"; $("hSub").textContent="Anahat trenleri, canlı konum"; document.title="Tren Takip";
+    $("hTitle").textContent="Vagonda"; $("hSub").textContent="Trenin şu an nerede?"; document.title="Vagonda · Trenin şu an nerede?";
   }
   render();
 }
@@ -467,7 +467,7 @@ window.addEventListener("hashchange",route);
 track("visit",{r:document.referrer||null});
 route(); fetchLive();
 setInterval(render,5000);
-setInterval(fetchLive,60000);
+setInterval(fetchLive,120000);
 </script>
 </body>
 </html>
