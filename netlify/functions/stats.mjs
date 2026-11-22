@@ -25,7 +25,10 @@ async function aggregateDay(store, day) {
 
 export default async (req) => {
   const pass = Netlify.env.get("ADMIN_PASSWORD");
-  if (!pass || !same(req.headers.get("x-admin-key") || "", pass)) return new Response("Yetkisiz", { status: 401 });
+  if (!pass) return new Response("ADMIN_PASSWORD tanımlı değil", { status: 503 });
+  let given = req.headers.get("x-admin-key") || "";
+  try { given = decodeURIComponent(given); } catch {}
+  if (!same(given.trim(), pass.trim())) return new Response("Yetkisiz", { status: 401 });
   const url = new URL(req.url);
   const days = Math.max(1, Math.min(90, parseInt(url.searchParams.get("days") || "7", 10) || 7));
   const store = getStore("stats");
