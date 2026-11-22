@@ -8,13 +8,13 @@
 
 import { chromium } from "playwright-core";
 import { existsSync as fileExists } from "node:fs";
-import { activeServices, queryableRange, estimateIndex, findBoundary, classify, schedAt } from "./logic.mjs";
+import { activeServices, queryableRange, estimateIndex, findBoundary, classify, schedAt, istanbulNow, toMin } from "./logic.mjs";
 
 const PAGE = process.env.TCDD_URL || "https://ebilet.tcddtasimacilik.gov.tr/trenim-nerede";
 const SITE = (process.env.SITE_URL || "").replace(/\/$/, "");
 const SECRET = process.env.PUSH_SECRET || "";
 const DRY = process.argv.includes("--dry");
-const MIN_GAP_MS = 4000;          // TCDD'ye iki sorgu arası en az bu kadar
+const MIN_GAP_MS = 2000;          // TCDD'ye iki sorgu arası en az bu kadar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -34,7 +34,12 @@ async function stationRows(browser, name, mode) {
   if (cache.has(key)) return cache.get(key);
   const wait = MIN_GAP_MS - (Date.now() - lastQueryAt); if (wait > 0) await sleep(wait);
   lastQueryAt = Date.now();
-  if (!page) { page = await browser.newPage({ locale: "tr-TR", timezoneId: "Europe/Istanbul" }); page.setDefaultTimeout(20000); }
+  if (!page) {
+    page = await browser.newPage({ locale: "tr-TR", timezoneId: "Europe/Istanbul" });
+    page.setDefaultTimeout(25000);
+    // görsel, font ve medya indirme: sayfa daha hızlı açılsın, TCDD'ye daha az yük
+    await page.route("**/*", r => ["image", "font", "media"].includes(r.request().resourceType()) ? r.abort() : r.continue());
+  }
   const term = name.replace(/^İZMİR \(BASMANE\)$/, "BASMANE").replace(/\s*A\.ÇETİNKAYA$/, "").replace(/ GAR$/, "");
   await page.goto(PAGE, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Sorgula" }).waitFor();
@@ -77,8 +82,16 @@ function makeQuery(browser, T) {
     const row = rows[T.no];
     if (!row) return { kind: "absent" };
     const rowTime = (row[3].match(/\d{1,2}:\d{2}/) || [""])[0].padStart(5, "0");
-    if (rowTime !== schedAt(T, i)) return { kind: "unknown", note: `tutarsız ${rowTime}` };
-    return classify(row[4]);
+    if (rowTime !== schedAt(T, i)) { log(`    ${T.no}@${T.stops[i].tcdd}: tutarsız satır ${rowTime}`); return { kind: "unknown" }; }
+    const c = classify(row[4]);
+    // Beklenen saat çoktan geçmişse tren o istasyonu geçmiştir (TCDD bazen "GİTTİ" yazmayı unutuyor)
+    if (c.kind === "expected") {
+      const { min } = istanbulNow(new Date());
+      let diff = toMin(c.time) - min; if (diff < -720) diff += 1440; if (diff > 720) diff -= 1440;
+      if (diff < -10) { log(`    ${T.no}@${T.stops[i].tcdd}: "${row[4]}" geçmişte, GİTTİ sayıldı`); return { kind: "passed", inferred: true }; }
+    }
+    log(`    ${T.no}@${T.stops[i].tcdd}: "${row[4]}" -> ${c.kind}`);
+    return c;
   };
 }
 
@@ -101,7 +114,7 @@ try {
     if (lo === null) { log(`${T.no}/${service}: bugün listelenen istasyonu yok, atlandı`); continue; }
     const start = Math.max(lo, Math.min(hi, estimateIndex(T, elapsed, delay)));
     log(`${T.no} ${T.name} ${T.from}→${T.to} [${service}] başlangıç: ${T.stops[start].tcdd}`);
-    const r = await findBoundary(T, makeQuery(browser, T), start, lo, hi);
+    const r = await findBoundary(T, makeQuery(browser, T), start, lo, hi, 5);
     const p = prev[`${T.no}|${service}`];
     const s = {
       trainNo: T.no, slug: T.slug, service, updatedAt: nowIso, ok: r.ok,
