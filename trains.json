@@ -1,0 +1,1394 @@
+[
+ {
+  "slug": "konya-mavi-izmir-konya",
+  "no": "32007",
+  "name": "Konya Mavi Treni",
+  "line": "konya-mavi",
+  "dir": 1,
+  "from": "İzmir (Basmane)",
+  "to": "Konya",
+  "stops": [
+   {
+    "tcdd": "İZMİR (BASMANE)",
+    "name": "İzmir (Basmane)",
+    "a": null,
+    "d": "20:05"
+   },
+   {
+    "tcdd": "ÇİĞLİ",
+    "name": "Çiğli",
+    "a": "20:36",
+    "d": "20:38"
+   },
+   {
+    "tcdd": "MENEMEN",
+    "name": "Menemen",
+    "a": "20:58",
+    "d": "21:00"
+   },
+   {
+    "tcdd": "EMİRALEM",
+    "name": "Emiralem",
+    "a": "21:08",
+    "d": "21:09"
+   },
+   {
+    "tcdd": "MURADİYE",
+    "name": "Muradiye",
+    "a": "21:32",
+    "d": "21:34"
+   },
+   {
+    "tcdd": "MANİSA",
+    "name": "Manisa",
+    "a": "21:48",
+    "d": "21:50"
+   },
+   {
+    "tcdd": "TURGUTLU",
+    "name": "Turgutlu",
+    "a": "22:21",
+    "d": "22:22"
+   },
+   {
+    "tcdd": "URGANLI",
+    "name": "Urganlı",
+    "a": "22:33",
+    "d": "22:34"
+   },
+   {
+    "tcdd": "AHMETLİ",
+    "name": "Ahmetli",
+    "a": "22:43",
+    "d": "22:44"
+   },
+   {
+    "tcdd": "SALİHLİ",
+    "name": "Salihli",
+    "a": "22:58",
+    "d": "22:59"
+   },
+   {
+    "tcdd": "KAVAKLIDERE",
+    "name": "Kavaklıdere",
+    "a": "23:17",
+    "d": "23:18"
+   },
+   {
+    "tcdd": "ALAŞEHİR",
+    "name": "Alaşehir",
+    "a": "23:33",
+    "d": "23:34"
+   },
+   {
+    "tcdd": "KONAKLAR",
+    "name": "Konaklar",
+    "a": "23:58",
+    "d": "23:59"
+   },
+   {
+    "tcdd": "GÜNEYKÖY",
+    "name": "Güneyköy",
+    "a": "00:41",
+    "d": "00:42"
+   },
+   {
+    "tcdd": "EŞME",
+    "name": "Eşme",
+    "a": "00:54",
+    "d": "00:55"
+   },
+   {
+    "tcdd": "İNAY",
+    "name": "İnay",
+    "a": "01:35",
+    "d": "01:36"
+   },
+   {
+    "tcdd": "UŞAK",
+    "name": "Uşak",
+    "a": "02:11",
+    "d": "02:26"
+   },
+   {
+    "tcdd": "BANAZ",
+    "name": "Banaz",
+    "a": "03:08",
+    "d": "03:09"
+   },
+   {
+    "tcdd": "OTURAK",
+    "name": "Oturak",
+    "a": "03:26",
+    "d": "03:27"
+   },
+   {
+    "tcdd": "DUMLUPINAR",
+    "name": "Dumlupınar",
+    "a": "03:49",
+    "d": "03:50"
+   },
+   {
+    "tcdd": "YILDIRIMKEMAL",
+    "name": "Yıldırımkemal",
+    "a": "04:04",
+    "d": "04:05"
+   },
+   {
+    "tcdd": "AFYON A.ÇETİNKAYA",
+    "name": "Afyon A.Çetinkaya",
+    "a": "04:53",
+    "d": "05:08"
+   },
+   {
+    "tcdd": "ÇAY",
+    "name": "Çay",
+    "a": "05:51",
+    "d": "05:52"
+   },
+   {
+    "tcdd": "SULTANDAĞI",
+    "name": "Sultandağı",
+    "a": "06:14",
+    "d": "06:15"
+   },
+   {
+    "tcdd": "AKŞEHİR",
+    "name": "Akşehir",
+    "a": "06:38",
+    "d": "06:39"
+   },
+   {
+    "tcdd": "ARGITHAN",
+    "name": "Argıthan",
+    "a": "07:01",
+    "d": "07:02"
+   },
+   {
+    "tcdd": "ÇAVUŞCUGÖL",
+    "name": "Çavuşcugöl",
+    "a": "07:16",
+    "d": "07:17"
+   },
+   {
+    "tcdd": "ILGIN",
+    "name": "Ilgın",
+    "a": "07:29",
+    "d": "07:30"
+   },
+   {
+    "tcdd": "KADINHAN",
+    "name": "Kadınhan",
+    "a": "07:52",
+    "d": "07:53"
+   },
+   {
+    "tcdd": "SARAYÖNÜ",
+    "name": "Sarayönü",
+    "a": "08:13",
+    "d": "08:14"
+   },
+   {
+    "tcdd": "MEYDAN",
+    "name": "Meydan",
+    "a": "08:29",
+    "d": "08:30"
+   },
+   {
+    "tcdd": "KAYACIK",
+    "name": "Kayacık",
+    "a": "08:50",
+    "d": "08:51"
+   },
+   {
+    "tcdd": "KONYA",
+    "name": "Konya",
+    "a": "09:11",
+    "d": null
+   }
+  ]
+ },
+ {
+  "slug": "konya-mavi-konya-izmir",
+  "no": "72008",
+  "name": "Konya Mavi Treni",
+  "line": "konya-mavi",
+  "dir": -1,
+  "from": "Konya",
+  "to": "İzmir (Basmane)",
+  "stops": [
+   {
+    "tcdd": "KONYA",
+    "name": "Konya",
+    "a": null,
+    "d": "19:00"
+   },
+   {
+    "tcdd": "KAYACIK",
+    "name": "Kayacık",
+    "a": "19:20",
+    "d": "19:21"
+   },
+   {
+    "tcdd": "SARAYÖNÜ",
+    "name": "Sarayönü",
+    "a": "19:57",
+    "d": "19:58"
+   },
+   {
+    "tcdd": "KADINHAN",
+    "name": "Kadınhan",
+    "a": "20:18",
+    "d": "20:19"
+   },
+   {
+    "tcdd": "ILGIN",
+    "name": "Ilgın",
+    "a": "20:41",
+    "d": "20:43"
+   },
+   {
+    "tcdd": "ÇAVUŞCUGÖL",
+    "name": "Çavuşcugöl",
+    "a": "20:55",
+    "d": "20:57"
+   },
+   {
+    "tcdd": "ARGITHAN",
+    "name": "Argıthan",
+    "a": "21:12",
+    "d": "21:14"
+   },
+   {
+    "tcdd": "AKŞEHİR",
+    "name": "Akşehir",
+    "a": "21:35",
+    "d": "21:40"
+   },
+   {
+    "tcdd": "SULTANDAĞI",
+    "name": "Sultandağı",
+    "a": "22:03",
+    "d": "22:05"
+   },
+   {
+    "tcdd": "ÇAY",
+    "name": "Çay",
+    "a": "22:27",
+    "d": "22:29"
+   },
+   {
+    "tcdd": "AFYON A.ÇETİNKAYA",
+    "name": "Afyon A.Çetinkaya",
+    "a": "23:13",
+    "d": "23:28"
+   },
+   {
+    "tcdd": "YILDIRIMKEMAL",
+    "name": "Yıldırımkemal",
+    "a": "00:19",
+    "d": "00:20"
+   },
+   {
+    "tcdd": "DUMLUPINAR",
+    "name": "Dumlupınar",
+    "a": "00:35",
+    "d": "00:36"
+   },
+   {
+    "tcdd": "OTURAK",
+    "name": "Oturak",
+    "a": "00:52",
+    "d": "00:53"
+   },
+   {
+    "tcdd": "BANAZ",
+    "name": "Banaz",
+    "a": "01:09",
+    "d": "01:10"
+   },
+   {
+    "tcdd": "UŞAK",
+    "name": "Uşak",
+    "a": "01:51",
+    "d": "02:12"
+   },
+   {
+    "tcdd": "İNAY",
+    "name": "İnay",
+    "a": "02:45",
+    "d": "02:46"
+   },
+   {
+    "tcdd": "EŞME",
+    "name": "Eşme",
+    "a": "03:27",
+    "d": "03:29"
+   },
+   {
+    "tcdd": "GÜNEYKÖY",
+    "name": "Güneyköy",
+    "a": "03:42",
+    "d": "03:46"
+   },
+   {
+    "tcdd": "TÜRKMENTEPE",
+    "name": "Türkmentepe",
+    "a": "04:02",
+    "d": "04:03"
+   },
+   {
+    "tcdd": "KONAKLAR",
+    "name": "Konaklar",
+    "a": "04:18",
+    "d": "04:19"
+   },
+   {
+    "tcdd": "ALAŞEHİR",
+    "name": "Alaşehir",
+    "a": "04:38",
+    "d": "04:40"
+   },
+   {
+    "tcdd": "KAVAKLIDERE",
+    "name": "Kavaklıdere",
+    "a": "04:53",
+    "d": "04:54"
+   },
+   {
+    "tcdd": "SALİHLİ",
+    "name": "Salihli",
+    "a": "05:12",
+    "d": "05:13"
+   },
+   {
+    "tcdd": "AHMETLİ",
+    "name": "Ahmetli",
+    "a": "05:27",
+    "d": "05:28"
+   },
+   {
+    "tcdd": "URGANLI",
+    "name": "Urganlı",
+    "a": "05:37",
+    "d": "05:38"
+   },
+   {
+    "tcdd": "TURGUTLU",
+    "name": "Turgutlu",
+    "a": "05:49",
+    "d": "05:50"
+   },
+   {
+    "tcdd": "MANİSA",
+    "name": "Manisa",
+    "a": "06:21",
+    "d": "06:23"
+   },
+   {
+    "tcdd": "MURADİYE",
+    "name": "Muradiye",
+    "a": "06:37",
+    "d": "06:38"
+   },
+   {
+    "tcdd": "EMİRALEM",
+    "name": "Emiralem",
+    "a": "06:59",
+    "d": "07:00"
+   },
+   {
+    "tcdd": "MENEMEN",
+    "name": "Menemen",
+    "a": "07:08",
+    "d": "07:14"
+   },
+   {
+    "tcdd": "ÇİĞLİ",
+    "name": "Çiğli",
+    "a": "07:31",
+    "d": "07:33"
+   },
+   {
+    "tcdd": "İZMİR (BASMANE)",
+    "name": "İzmir (Basmane)",
+    "a": "08:00",
+    "d": null
+   }
+  ]
+ },
+ {
+  "slug": "izmir-mavi-izmir-ankara",
+  "no": "32005",
+  "name": "İzmir Mavi Treni",
+  "line": "izmir-mavi",
+  "dir": 1,
+  "from": "İzmir (Basmane)",
+  "to": "Ankara Gar",
+  "stops": [
+   {
+    "tcdd": "İZMİR (BASMANE)",
+    "name": "İzmir (Basmane)",
+    "a": null,
+    "d": "19:05"
+   },
+   {
+    "tcdd": "ÇİĞLİ",
+    "name": "Çiğli",
+    "a": "19:31",
+    "d": "19:33"
+   },
+   {
+    "tcdd": "MENEMEN",
+    "name": "Menemen",
+    "a": "19:53",
+    "d": "19:55"
+   },
+   {
+    "tcdd": "EMİRALEM",
+    "name": "Emiralem",
+    "a": "20:03",
+    "d": "20:05"
+   },
+   {
+    "tcdd": "MURADİYE",
+    "name": "Muradiye",
+    "a": "20:25",
+    "d": "20:27"
+   },
+   {
+    "tcdd": "MANİSA",
+    "name": "Manisa",
+    "a": "20:41",
+    "d": "20:48"
+   },
+   {
+    "tcdd": "SARUHANLI",
+    "name": "Saruhanlı",
+    "a": "21:10",
+    "d": "21:11"
+   },
+   {
+    "tcdd": "AKHİSAR",
+    "name": "Akhisar",
+    "a": "21:34",
+    "d": "21:37"
+   },
+   {
+    "tcdd": "KIRKAĞAÇ",
+    "name": "Kırkağaç",
+    "a": "22:00",
+    "d": "22:02"
+   },
+   {
+    "tcdd": "SOMA",
+    "name": "Soma",
+    "a": "22:11",
+    "d": "22:14"
+   },
+   {
+    "tcdd": "SAVAŞTEPE",
+    "name": "Savaştepe",
+    "a": "22:37",
+    "d": "22:39"
+   },
+   {
+    "tcdd": "BALIKESİR",
+    "name": "Balıkesir",
+    "a": "23:29",
+    "d": "23:44"
+   },
+   {
+    "tcdd": "DURSUNBEY",
+    "name": "Dursunbey",
+    "a": "01:19",
+    "d": "01:21"
+   },
+   {
+    "tcdd": "BALIKÖY",
+    "name": "Balıköy",
+    "a": "02:26",
+    "d": "02:28"
+   },
+   {
+    "tcdd": "TAVŞANLI",
+    "name": "Tavşanlı",
+    "a": "03:16",
+    "d": "03:21"
+   },
+   {
+    "tcdd": "KÜTAHYA",
+    "name": "Kütahya",
+    "a": "04:03",
+    "d": "04:10"
+   },
+   {
+    "tcdd": "ALAYUNT",
+    "name": "Alayunt",
+    "a": "04:19",
+    "d": "04:20"
+   },
+   {
+    "tcdd": "ESKİŞEHİR",
+    "name": "Eskişehir",
+    "a": "05:21",
+    "d": "05:31"
+   },
+   {
+    "tcdd": "ALPU",
+    "name": "Alpu",
+    "a": "06:01",
+    "d": "06:04"
+   },
+   {
+    "tcdd": "BEYLİKOVA",
+    "name": "Beylikova",
+    "a": "06:21",
+    "d": "06:23"
+   },
+   {
+    "tcdd": "YUNUSEMRE",
+    "name": "Yunusemre",
+    "a": "06:44",
+    "d": "06:47"
+   },
+   {
+    "tcdd": "BİÇER",
+    "name": "Biçer",
+    "a": "07:06",
+    "d": "07:08"
+   },
+   {
+    "tcdd": "BEYLİKKÖPRÜ",
+    "name": "Beylikköprü",
+    "a": "07:32",
+    "d": "07:35"
+   },
+   {
+    "tcdd": "POLATLI",
+    "name": "Polatlı",
+    "a": "07:53",
+    "d": "08:00"
+   },
+   {
+    "tcdd": "SİNCAN",
+    "name": "Sincan",
+    "a": "08:46",
+    "d": "08:50"
+   },
+   {
+    "tcdd": "ANKARA GAR",
+    "name": "Ankara Gar",
+    "a": "09:07",
+    "d": null
+   }
+  ]
+ },
+ {
+  "slug": "izmir-mavi-ankara-izmir",
+  "no": "22006",
+  "name": "İzmir Mavi Treni",
+  "line": "izmir-mavi",
+  "dir": -1,
+  "from": "Ankara Gar",
+  "to": "İzmir (Basmane)",
+  "stops": [
+   {
+    "tcdd": "ANKARA GAR",
+    "name": "Ankara Gar",
+    "a": null,
+    "d": "20:00"
+   },
+   {
+    "tcdd": "SİNCAN",
+    "name": "Sincan",
+    "a": "20:17",
+    "d": "20:21"
+   },
+   {
+    "tcdd": "POLATLI",
+    "name": "Polatlı",
+    "a": "21:07",
+    "d": "21:09"
+   },
+   {
+    "tcdd": "BEYLİKKÖPRÜ",
+    "name": "Beylikköprü",
+    "a": "21:27",
+    "d": "21:29"
+   },
+   {
+    "tcdd": "BİÇER",
+    "name": "Biçer",
+    "a": "21:53",
+    "d": "21:54"
+   },
+   {
+    "tcdd": "YUNUSEMRE",
+    "name": "Yunusemre",
+    "a": "22:13",
+    "d": "22:15"
+   },
+   {
+    "tcdd": "BEYLİKOVA",
+    "name": "Beylikova",
+    "a": "22:36",
+    "d": "22:37"
+   },
+   {
+    "tcdd": "ALPU",
+    "name": "Alpu",
+    "a": "22:53",
+    "d": "22:55"
+   },
+   {
+    "tcdd": "ESKİŞEHİR",
+    "name": "Eskişehir",
+    "a": "23:27",
+    "d": "23:37"
+   },
+   {
+    "tcdd": "ALAYUNT",
+    "name": "Alayunt",
+    "a": "00:35",
+    "d": "00:36"
+   },
+   {
+    "tcdd": "KÜTAHYA",
+    "name": "Kütahya",
+    "a": "00:45",
+    "d": "00:52"
+   },
+   {
+    "tcdd": "TAVŞANLI",
+    "name": "Tavşanlı",
+    "a": "01:34",
+    "d": "01:39"
+   },
+   {
+    "tcdd": "BALIKÖY",
+    "name": "Balıköy",
+    "a": "02:27",
+    "d": "02:29"
+   },
+   {
+    "tcdd": "DURSUNBEY",
+    "name": "Dursunbey",
+    "a": "03:34",
+    "d": "03:37"
+   },
+   {
+    "tcdd": "BALIKESİR",
+    "name": "Balıkesir",
+    "a": "05:12",
+    "d": "05:26"
+   },
+   {
+    "tcdd": "SAVAŞTEPE",
+    "name": "Savaştepe",
+    "a": "06:16",
+    "d": "06:18"
+   },
+   {
+    "tcdd": "SOMA",
+    "name": "Soma",
+    "a": "06:41",
+    "d": "06:44"
+   },
+   {
+    "tcdd": "KIRKAĞAÇ",
+    "name": "Kırkağaç",
+    "a": "06:53",
+    "d": "06:55"
+   },
+   {
+    "tcdd": "AKHİSAR",
+    "name": "Akhisar",
+    "a": "07:18",
+    "d": "07:22"
+   },
+   {
+    "tcdd": "SARUHANLI",
+    "name": "Saruhanlı",
+    "a": "07:45",
+    "d": "07:47"
+   },
+   {
+    "tcdd": "MANİSA",
+    "name": "Manisa",
+    "a": "08:08",
+    "d": "08:18"
+   },
+   {
+    "tcdd": "MURADİYE",
+    "name": "Muradiye",
+    "a": "08:31",
+    "d": "08:32"
+   },
+   {
+    "tcdd": "EMİRALEM",
+    "name": "Emiralem",
+    "a": "08:54",
+    "d": "08:55"
+   },
+   {
+    "tcdd": "MENEMEN",
+    "name": "Menemen",
+    "a": "09:03",
+    "d": "09:09"
+   },
+   {
+    "tcdd": "ÇİĞLİ",
+    "name": "Çiğli",
+    "a": "09:27",
+    "d": "09:29"
+   },
+   {
+    "tcdd": "İZMİR (BASMANE)",
+    "name": "İzmir (Basmane)",
+    "a": "09:56",
+    "d": null
+   }
+  ]
+ },
+ {
+  "slug": "dogu-ankara-kars",
+  "no": "22010",
+  "name": "Doğu Ekspresi",
+  "line": "dogu",
+  "dir": 1,
+  "from": "Ankara Gar",
+  "to": "Kars",
+  "stops": [
+   {
+    "tcdd": "ANKARA GAR",
+    "name": "Ankara Gar",
+    "a": null,
+    "d": "18:00"
+   },
+   {
+    "tcdd": "KAYAŞ",
+    "name": "Kayaş",
+    "a": "18:14",
+    "d": "18:15"
+   },
+   {
+    "tcdd": "ELMADAĞ",
+    "name": "Elmadağ",
+    "a": "18:52",
+    "d": "18:53"
+   },
+   {
+    "tcdd": "IRMAK",
+    "name": "Irmak",
+    "a": "19:23",
+    "d": "19:25"
+   },
+   {
+    "tcdd": "KIRIKKALE",
+    "name": "Kırıkkale",
+    "a": "19:50",
+    "d": "19:52"
+   },
+   {
+    "tcdd": "ÇERİKLİ",
+    "name": "Çerikli",
+    "a": "20:50",
+    "d": "20:51"
+   },
+   {
+    "tcdd": "YERKÖY",
+    "name": "Yerköy",
+    "a": "21:40",
+    "d": "21:43"
+   },
+   {
+    "tcdd": "ŞEFAATLİ",
+    "name": "Şefaatli",
+    "a": "22:26",
+    "d": "22:28"
+   },
+   {
+    "tcdd": "SARIKENT",
+    "name": "Sarıkent",
+    "a": "22:46",
+    "d": "22:47"
+   },
+   {
+    "tcdd": "YENİFAKILI",
+    "name": "Yenifakılı",
+    "a": "23:18",
+    "d": "23:20"
+   },
+   {
+    "tcdd": "BOĞAZKÖPRÜ",
+    "name": "Boğazköprü",
+    "a": "00:32",
+    "d": "00:49"
+   },
+   {
+    "tcdd": "KAYSERİ",
+    "name": "Kayseri",
+    "a": "01:06",
+    "d": "01:21"
+   },
+   {
+    "tcdd": "YENİÇUBUK",
+    "name": "Yeniçubuk",
+    "a": "02:44",
+    "d": "02:45"
+   },
+   {
+    "tcdd": "İHSANLI",
+    "name": "İhsanlı",
+    "a": "03:01",
+    "d": "03:10"
+   },
+   {
+    "tcdd": "ŞARKIŞLA",
+    "name": "Şarkışla",
+    "a": "03:26",
+    "d": "03:28"
+   },
+   {
+    "tcdd": "HANLI",
+    "name": "Hanlı",
+    "a": "03:49",
+    "d": "03:50"
+   },
+   {
+    "tcdd": "KALIN",
+    "name": "Kalın",
+    "a": "04:31",
+    "d": "04:32"
+   },
+   {
+    "tcdd": "SİVAS",
+    "name": "Sivas",
+    "a": "04:55",
+    "d": "05:06"
+   },
+   {
+    "tcdd": "BOSTANKAYA",
+    "name": "Bostankaya",
+    "a": "05:32",
+    "d": "05:33"
+   },
+   {
+    "tcdd": "YENİKANGAL",
+    "name": "Yenikangal",
+    "a": "06:26",
+    "d": "06:28"
+   },
+   {
+    "tcdd": "ÇETİNKAYA",
+    "name": "Çetinkaya",
+    "a": "06:46",
+    "d": "06:47"
+   },
+   {
+    "tcdd": "AVŞAR",
+    "name": "Avşar",
+    "a": "07:04",
+    "d": "07:08"
+   },
+   {
+    "tcdd": "GÜNEŞ",
+    "name": "Güneş",
+    "a": "07:24",
+    "d": "07:25"
+   },
+   {
+    "tcdd": "GÖÇENTAŞI",
+    "name": "Göçentaşı",
+    "a": "07:33",
+    "d": "07:34"
+   },
+   {
+    "tcdd": "CÜREK",
+    "name": "Cürek",
+    "a": "07:51",
+    "d": "07:52"
+   },
+   {
+    "tcdd": "DEMİRDAĞ",
+    "name": "Demirdağ",
+    "a": "08:05",
+    "d": "08:06"
+   },
+   {
+    "tcdd": "DİVRİĞİ",
+    "name": "Divriği",
+    "a": "08:10",
+    "d": "08:20"
+   },
+   {
+    "tcdd": "KEMALİYE ÇALTI",
+    "name": "Kemaliye Çaltı",
+    "a": "08:51",
+    "d": "08:53"
+   },
+   {
+    "tcdd": "ADATEPE",
+    "name": "Adatepe",
+    "a": "09:02",
+    "d": "09:03"
+   },
+   {
+    "tcdd": "BAĞIŞTAŞ",
+    "name": "Bağıştaş",
+    "a": "09:14",
+    "d": "09:15"
+   },
+   {
+    "tcdd": "İLİÇ",
+    "name": "İliç",
+    "a": "09:27",
+    "d": "09:29"
+   },
+   {
+    "tcdd": "GÜLLÜBAĞ",
+    "name": "Güllübağ",
+    "a": "09:53",
+    "d": "09:54"
+   },
+   {
+    "tcdd": "YAHŞİLER",
+    "name": "Yahşiler",
+    "a": "10:00",
+    "d": "10:01"
+   },
+   {
+    "tcdd": "ERİÇ",
+    "name": "Eriç",
+    "a": "10:16",
+    "d": "10:17"
+   },
+   {
+    "tcdd": "KEMAH",
+    "name": "Kemah",
+    "a": "10:35",
+    "d": "10:36"
+   },
+   {
+    "tcdd": "ERZİNCAN",
+    "name": "Erzincan",
+    "a": "11:24",
+    "d": "11:44"
+   },
+   {
+    "tcdd": "TANYERİ",
+    "name": "Tanyeri",
+    "a": "12:13",
+    "d": "12:14"
+   },
+   {
+    "tcdd": "MERCAN",
+    "name": "Mercan",
+    "a": "13:09",
+    "d": "13:10"
+   },
+   {
+    "tcdd": "ÇADIRKAYA",
+    "name": "Çadırkaya",
+    "a": "13:23",
+    "d": "13:24"
+   },
+   {
+    "tcdd": "ERBAŞ",
+    "name": "Erbaş",
+    "a": "13:38",
+    "d": "13:39"
+   },
+   {
+    "tcdd": "KARASU",
+    "name": "Karasu",
+    "a": "13:55",
+    "d": "14:13"
+   },
+   {
+    "tcdd": "AŞKALE",
+    "name": "Aşkale",
+    "a": "14:47",
+    "d": "14:48"
+   },
+   {
+    "tcdd": "KANDİLLİ",
+    "name": "Kandilli",
+    "a": "15:07",
+    "d": "15:08"
+   },
+   {
+    "tcdd": "ILICA",
+    "name": "Ilıca",
+    "a": "15:32",
+    "d": "15:33"
+   },
+   {
+    "tcdd": "PALANDÖKEN",
+    "name": "Palandöken",
+    "a": "15:41",
+    "d": "15:51"
+   },
+   {
+    "tcdd": "ERZURUM",
+    "name": "Erzurum",
+    "a": "16:04",
+    "d": "16:14"
+   },
+   {
+    "tcdd": "HASANKALE",
+    "name": "Hasankale",
+    "a": "16:52",
+    "d": "16:53"
+   },
+   {
+    "tcdd": "KÖPRÜKÖY",
+    "name": "Köprüköy",
+    "a": "17:09",
+    "d": "17:10"
+   },
+   {
+    "tcdd": "HORASAN",
+    "name": "Horasan",
+    "a": "17:39",
+    "d": "17:40"
+   },
+   {
+    "tcdd": "SÜNGÜTAŞI",
+    "name": "Süngütaşı",
+    "a": "18:09",
+    "d": "18:10"
+   },
+   {
+    "tcdd": "KARAURGAN",
+    "name": "Karaurgan",
+    "a": "18:20",
+    "d": "18:21"
+   },
+   {
+    "tcdd": "TOPDAĞI",
+    "name": "Topdağı",
+    "a": "18:34",
+    "d": "18:35"
+   },
+   {
+    "tcdd": "SARIKAMIŞ",
+    "name": "Sarıkamış",
+    "a": "19:23",
+    "d": "19:24"
+   },
+   {
+    "tcdd": "KARS",
+    "name": "Kars",
+    "a": "20:26",
+    "d": null
+   }
+  ]
+ },
+ {
+  "slug": "dogu-kars-ankara",
+  "no": "92009",
+  "name": "Doğu Ekspresi",
+  "line": "dogu",
+  "dir": -1,
+  "from": "Kars",
+  "to": "Ankara Gar",
+  "stops": [
+   {
+    "tcdd": "KARS",
+    "name": "Kars",
+    "a": null,
+    "d": "08:00"
+   },
+   {
+    "tcdd": "SARIKAMIŞ",
+    "name": "Sarıkamış",
+    "a": "09:07",
+    "d": "09:08"
+   },
+   {
+    "tcdd": "TOPDAĞI",
+    "name": "Topdağı",
+    "a": "09:54",
+    "d": "09:55"
+   },
+   {
+    "tcdd": "KARAURGAN",
+    "name": "Karaurgan",
+    "a": "10:06",
+    "d": "10:07"
+   },
+   {
+    "tcdd": "SÜNGÜTAŞI",
+    "name": "Süngütaşı",
+    "a": "10:16",
+    "d": "10:17"
+   },
+   {
+    "tcdd": "HORASAN",
+    "name": "Horasan",
+    "a": "10:42",
+    "d": "10:43"
+   },
+   {
+    "tcdd": "KÖPRÜKÖY",
+    "name": "Köprüköy",
+    "a": "11:12",
+    "d": "11:13"
+   },
+   {
+    "tcdd": "HASANKALE",
+    "name": "Hasankale",
+    "a": "11:29",
+    "d": "11:30"
+   },
+   {
+    "tcdd": "ERZURUM",
+    "name": "Erzurum",
+    "a": "12:14",
+    "d": "12:24"
+   },
+   {
+    "tcdd": "ILICA",
+    "name": "Ilıca",
+    "a": "12:53",
+    "d": "12:54"
+   },
+   {
+    "tcdd": "KANDİLLİ",
+    "name": "Kandilli",
+    "a": "13:18",
+    "d": "13:20"
+   },
+   {
+    "tcdd": "AŞKALE",
+    "name": "Aşkale",
+    "a": "13:38",
+    "d": "13:39"
+   },
+   {
+    "tcdd": "KARASU",
+    "name": "Karasu",
+    "a": "14:12",
+    "d": "14:14"
+   },
+   {
+    "tcdd": "ERBAŞ",
+    "name": "Erbaş",
+    "a": "14:30",
+    "d": "14:31"
+   },
+   {
+    "tcdd": "ÇADIRKAYA",
+    "name": "Çadırkaya",
+    "a": "14:45",
+    "d": "14:46"
+   },
+   {
+    "tcdd": "MERCAN",
+    "name": "Mercan",
+    "a": "14:58",
+    "d": "14:59"
+   },
+   {
+    "tcdd": "ERZİNCAN",
+    "name": "Erzincan",
+    "a": "16:23",
+    "d": "16:36"
+   },
+   {
+    "tcdd": "KEMAH",
+    "name": "Kemah",
+    "a": "17:24",
+    "d": "17:25"
+   },
+   {
+    "tcdd": "ERİÇ",
+    "name": "Eriç",
+    "a": "17:43",
+    "d": "17:45"
+   },
+   {
+    "tcdd": "YAHŞİLER",
+    "name": "Yahşiler",
+    "a": "18:00",
+    "d": "18:01"
+   },
+   {
+    "tcdd": "GÜLLÜBAĞ",
+    "name": "Güllübağ",
+    "a": "18:05",
+    "d": "18:06"
+   },
+   {
+    "tcdd": "İLİÇ",
+    "name": "İliç",
+    "a": "18:29",
+    "d": "18:30"
+   },
+   {
+    "tcdd": "BAĞIŞTAŞ",
+    "name": "Bağıştaş",
+    "a": "18:42",
+    "d": "18:43"
+   },
+   {
+    "tcdd": "ADATEPE",
+    "name": "Adatepe",
+    "a": "18:55",
+    "d": "18:56"
+   },
+   {
+    "tcdd": "KEMALİYE ÇALTI",
+    "name": "Kemaliye Çaltı",
+    "a": "19:05",
+    "d": "19:06"
+   },
+   {
+    "tcdd": "DİVRİĞİ",
+    "name": "Divriği",
+    "a": "19:37",
+    "d": "19:49"
+   },
+   {
+    "tcdd": "DEMİRDAĞ",
+    "name": "Demirdağ",
+    "a": "19:53",
+    "d": "19:54"
+   },
+   {
+    "tcdd": "CÜREK",
+    "name": "Cürek",
+    "a": "20:08",
+    "d": "20:09"
+   },
+   {
+    "tcdd": "GÖÇENTAŞI",
+    "name": "Göçentaşı",
+    "a": "20:27",
+    "d": "20:28"
+   },
+   {
+    "tcdd": "GÜNEŞ",
+    "name": "Güneş",
+    "a": "20:36",
+    "d": "20:37"
+   },
+   {
+    "tcdd": "AVŞAR",
+    "name": "Avşar",
+    "a": "20:53",
+    "d": "20:54"
+   },
+   {
+    "tcdd": "ÇETİNKAYA",
+    "name": "Çetinkaya",
+    "a": "21:11",
+    "d": "21:14"
+   },
+   {
+    "tcdd": "YENİKANGAL",
+    "name": "Yenikangal",
+    "a": "21:35",
+    "d": "21:39"
+   },
+   {
+    "tcdd": "BOSTANKAYA",
+    "name": "Bostankaya",
+    "a": "22:25",
+    "d": "22:27"
+   },
+   {
+    "tcdd": "SİVAS",
+    "name": "Sivas",
+    "a": "22:52",
+    "d": "23:11"
+   },
+   {
+    "tcdd": "ŞARKIŞLA",
+    "name": "Şarkışla",
+    "a": "00:37",
+    "d": "00:38"
+   },
+   {
+    "tcdd": "YENİÇUBUK",
+    "name": "Yeniçubuk",
+    "a": "01:09",
+    "d": "01:10"
+   },
+   {
+    "tcdd": "KAYSERİ",
+    "name": "Kayseri",
+    "a": "02:44",
+    "d": "03:07"
+   },
+   {
+    "tcdd": "BOĞAZKÖPRÜ",
+    "name": "Boğazköprü",
+    "a": "03:25",
+    "d": "03:42"
+   },
+   {
+    "tcdd": "YENİFAKILI",
+    "name": "Yenifakılı",
+    "a": "04:58",
+    "d": "05:00"
+   },
+   {
+    "tcdd": "SARIKENT",
+    "name": "Sarıkent",
+    "a": "05:31",
+    "d": "05:32"
+   },
+   {
+    "tcdd": "ŞEFAATLİ",
+    "name": "Şefaatli",
+    "a": "05:50",
+    "d": "05:52"
+   },
+   {
+    "tcdd": "YERKÖY",
+    "name": "Yerköy",
+    "a": "06:34",
+    "d": "06:37"
+   },
+   {
+    "tcdd": "ÇERİKLİ",
+    "name": "Çerikli",
+    "a": "07:27",
+    "d": "07:28"
+   },
+   {
+    "tcdd": "KIRIKKALE",
+    "name": "Kırıkkale",
+    "a": "08:29",
+    "d": "08:31"
+   },
+   {
+    "tcdd": "IRMAK",
+    "name": "Irmak",
+    "a": "08:56",
+    "d": "08:59"
+   },
+   {
+    "tcdd": "ELMADAĞ",
+    "name": "Elmadağ",
+    "a": "09:39",
+    "d": "09:40"
+   },
+   {
+    "tcdd": "KAYAŞ",
+    "name": "Kayaş",
+    "a": "10:14",
+    "d": "10:15"
+   },
+   {
+    "tcdd": "ANKARA GAR",
+    "name": "Ankara Gar",
+    "a": "10:27",
+    "d": null
+   }
+  ]
+ }
+]

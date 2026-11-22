@@ -1,0 +1,7 @@
+{
+  "name": "train-data-collection-scraper",
+  "private": true,
+  "type": "module",
+  "scripts": { "run": "node scrape.mjs", "dry": "node scrape.mjs --dry" },
+  "dependencies": { "playwright-core": "1.56.1" }
+}

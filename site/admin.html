@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Tren Takip · Yönetim</title>
+<style>
+  :root{ --bg:#f3f4f6; --card:#fff; --ink:#18212c; --ink2:#3d4752; --mute:#677283; --line:#e3e7ec; --grid:#eef1f4; --bar:#2a62c9; --barh:#1b4ea8; --err:#c0392b; }
+  @media (prefers-color-scheme:dark){ :root{ --bg:#0f1318; --card:#181e26; --ink:#e6eaf0; --ink2:#c3cad3; --mute:#95a0ad; --line:#2a323d; --grid:#222a33; --bar:#5b8ff0; --barh:#86acf5; --err:#ff7a6b; } }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+  button,input{font:inherit;color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;padding:max(14px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 28px max(14px,env(safe-area-inset-left))}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  h1{font-size:20px;margin:0}
+  .sub{color:var(--mute);font-size:13px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+  [hidden]{display:none!important}
+  .login{max-width:360px;margin:12vh auto 0;padding:22px}
+  .login h2{margin:0 0 6px;font-size:18px}
+  .login input{width:100%;margin:12px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:16px}
+  .btn{border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 14px;cursor:pointer}
+  .btn.primary{background:var(--bar);border-color:var(--bar);color:#fff;width:100%;padding:10px}
+  .err{color:var(--err);font-size:13px;min-height:18px}
+  .tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .chips{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .chips button{border:0;background:none;padding:6px 11px;border-radius:7px;cursor:pointer;font-size:13.5px;color:var(--mute)}
+  .chips button.on{background:var(--bar);color:#fff}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+  .kpi{padding:14px 16px}
+  .kpi .k{color:var(--mute);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+  .kpi .v{font-size:28px;font-weight:650;margin-top:2px;font-variant-numeric:tabular-nums;line-height:1.15}
+  .kpi .d{color:var(--mute);font-size:12.5px;margin-top:2px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .panel{padding:14px 16px;min-width:0}
+  .panel.wide{grid-column:1 / -1}
+  .panel h3{margin:0 0 10px;font-size:14.5px;font-weight:600}
+  .panel h3 small{color:var(--mute);font-weight:400;margin-left:6px}
+  .chart{position:relative}
+  .chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .axis{fill:var(--mute);font-size:11px}
+  .gridl{stroke:var(--grid);stroke-width:1}
+  .barr{fill:var(--bar)}
+  .barr.hov{fill:var(--barh)}
+  .hit{cursor:default}
+  .tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--card);font-size:12.5px;padding:5px 8px;border-radius:7px;white-space:nowrap;transform:translate(-50%,-100%);margin-top:-8px;opacity:0;transition:opacity .1s}
+  .rows{display:flex;flex-direction:column;gap:7px}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;font-size:14px}
+  .row .lbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--ink2)}
+  .row .num{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;text-align:right}
+  .row .track{grid-column:1 / -1;height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+  .row .track i{display:block;height:100%;background:var(--bar);border-radius:3px}
+  .empty{color:var(--mute);font-size:13.5px;padding:6px 0}
+  .foot{color:var(--mute);font-size:12.5px;margin-top:14px;line-height:1.6}
+  .foot label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+  table.sr{position:absolute;left:-9999px}
+  @media (max-width:760px){
+    .wrap{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+    .kpis{grid-template-columns:1fr 1fr}
+    .kpi .v{font-size:24px}
+    .grid{grid-template-columns:1fr}
+    header{gap:8px}
+    .tools{width:100%;justify-content:space-between}
+    .row .lbl{white-space:normal}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card login" id="login">
+    <h2>Yönetim</h2>
+    <div class="sub">Ziyaret istatistikleri için şifreyi girin.</div>
+    <form id="lf"><input id="pw" type="password" autocomplete="current-password" placeholder="Şifre" required>
+    <div class="err" id="lerr"></div><button class="btn primary" type="submit">Giriş</button></form>
+  </div>
+
+  <div id="app" hidden>
+    <header>
+      <div><h1>Tren Takip · Yönetim</h1><div class="sub" id="updated">–</div></div>
+      <div class="tools">
+        <div class="chips" id="range">
+          <button data-d="1">Bugün</button><button data-d="7" class="on">7 gün</button><button data-d="30">30 gün</button><button data-d="90">90 gün</button>
+        </div>
+        <div style="display:flex;gap:6px"><button class="btn" id="refresh" type="button">Yenile</button><button class="btn" id="logout" type="button">Çıkış</button></div>
+      </div>
+    </header>
+
+    <div class="kpis">
+      <div class="card kpi"><div class="k">Ziyaret</div><div class="v" id="kVisits">–</div><div class="d" id="kVisitsD"></div></div>
+      <div class="card kpi"><div class="k">Tekil ziyaretçi</div><div class="v" id="kUniq">–</div><div class="d">günlük tekillerin toplamı</div></div>
+      <div class="card kpi"><div class="k">Sefer görüntüleme</div><div class="v" id="kTrains">–</div><div class="d" id="kTrainsD"></div></div>
+      <div class="card kpi"><div class="k">Arama</div><div class="v" id="kSearch">–</div><div class="d" id="kSearchD"></div></div>
+    </div>
+
+    <div class="grid">
+      <div class="card panel wide"><h3 id="dailyTitle">Günlük ziyaret</h3><div class="chart" id="daily"></div></div>
+      <div class="card panel"><h3>En çok bakılan seferler</h3><div class="rows" id="trains"></div></div>
+      <div class="card panel"><h3>Aramalar <small>en sık 15</small></h3><div class="rows" id="searches"></div></div>
+      <div class="card panel"><h3>Saatlere göre ziyaret <small>Türkiye saati</small></h3><div class="chart" id="hours"></div></div>
+      <div class="card panel"><h3>Cihaz</h3><div class="rows" id="devices"></div></div>
+      <div class="card panel"><h3>Ülke</h3><div class="rows" id="countries"></div></div>
+      <div class="card panel"><h3>Nereden geldi</h3><div class="rows" id="refs"></div></div>
+    </div>
+
+    <div class="foot">
+      <label><input type="checkbox" id="notrack"> Bu tarayıcıdan yapılan ziyaretleri sayma</label><br>
+      Veriler anonimdir: IP adresi ya da kişisel bilgi saklanmaz. Tekil ziyaretçi her gün ayrı sayılır, günler arası eşleştirilmez.
+    </div>
+  </div>
+</div>
+
+<script>
+const TRAINS = {"konya-mavi-izmir-konya": {"name": "Konya Mavi Treni", "from": "İzmir (Basmane)", "to": "Konya"}, "konya-mavi-konya-izmir": {"name": "Konya Mavi Treni", "from": "Konya", "to": "İzmir (Basmane)"}, "izmir-mavi-izmir-ankara": {"name": "İzmir Mavi Treni", "from": "İzmir (Basmane)", "to": "Ankara Gar"}, "izmir-mavi-ankara-izmir": {"name": "İzmir Mavi Treni", "from": "Ankara Gar", "to": "İzmir (Basmane)"}, "dogu-ankara-kars": {"name": "Doğu Ekspresi", "from": "Ankara Gar", "to": "Kars"}, "dogu-kars-ankara": {"name": "Doğu Ekspresi", "from": "Kars", "to": "Ankara Gar"}};
+const $ = id => document.getElementById(id);
+const nf = new Intl.NumberFormat("tr-TR");
+let KEY = sessionStorage.getItem("tt_key") || "", DAYS = 7, DATA = null;
+
+async function load(){
+  $("updated").textContent = "Yükleniyor…";
+  const r = await fetch(`/api/stats?days=${DAYS}`, { headers: { "x-admin-key": KEY }, cache: "no-store" });
+  if (r.status === 401) { logout("Şifre hatalı."); return; }
+  if (!r.ok) { $("updated").textContent = "Veri alınamadı."; return; }
+  DATA = await r.json(); render();
+  $("updated").textContent = "Güncellendi: " + new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+}
+function logout(msg){ sessionStorage.removeItem("tt_key"); KEY=""; $("app").hidden=true; $("login").hidden=false; $("lerr").textContent=msg||""; }
+$("lf").onsubmit = e => { e.preventDefault(); KEY=$("pw").value; sessionStorage.setItem("tt_key",KEY);
+  try{ if(localStorage.getItem("tt_admin")===null) localStorage.setItem("tt_admin","1"); }catch(_){}
+  $("login").hidden=true; $("app").hidden=false; syncNotrack(); load(); };
+$("logout").onclick = () => logout();
+$("refresh").onclick = load;
+$("range").querySelectorAll("button").forEach(b => b.onclick = () => { $("range").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); DAYS=+b.dataset.d; load(); });
+function syncNotrack(){ try{ $("notrack").checked = localStorage.getItem("tt_admin")==="1"; }catch(_){} }
+$("notrack").onchange = e => { try{ localStorage.setItem("tt_admin", e.target.checked ? "1" : "0"); }catch(_){} };
+
+// ---- yardımcılar ----
+const sumObj = (days, f) => days.reduce((o,d)=>{ for(const [k,v] of Object.entries(d[f]||{})) o[k]=(o[k]||0)+v; return o; }, {});
+const topN = (o, n) => Object.entries(o).sort((a,b)=>b[1]-a[1]).slice(0,n);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dayLbl = d => new Date(d+"T12:00:00Z").toLocaleDateString("tr-TR",{day:"numeric",month:"short",timeZone:"UTC"});
+function rows(el, entries, label = k => k){
+  const max = Math.max(1, ...entries.map(e=>e[1])), tot = entries.reduce((s,e)=>s+e[1],0);
+  el.innerHTML = entries.length ? entries.map(([k,v]) => `<div class="row"><span class="lbl" title="${esc(label(k))}">${esc(label(k))}</span><span class="num">${nf.format(v)}${tot?` <span style="color:var(--mute);font-weight:400">· %${Math.round(v/tot*100)}</span>`:""}</span><span class="track"><i style="width:${v/max*100}%"></i></span></div>`).join("")
+    : `<div class="empty">Henüz veri yok.</div>`;
+}
+function trainLabel(slug){ const t=TRAINS[slug]; return t ? `${t.name} · ${t.from} → ${t.to}` : slug; }
+
+// Tek seri sütun grafiği (SVG) + üzerine gelince ipucu
+function bars(el, labels, values, opts = {}){
+  const W = Math.max(260, Math.round(el.clientWidth || 600)), H = opts.h || (W < 500 ? 170 : 210), P = { l: 34, r: 6, t: 8, b: 24 };
+  const n = values.length, max = Math.max(1, ...values);
+  const step = niceStep(max), top = Math.ceil(max/step)*step;
+  const iw = W-P.l-P.r, ih = H-P.t-P.b, bw = iw/n, gap = Math.min(6, bw*0.25), w = Math.max(1, bw-gap);
+  const y = v => P.t + ih - v/top*ih;
+  let g = "";
+  for (let v=0; v<=top; v+=step) g += `<line class="gridl" x1="${P.l}" x2="${W-P.r}" y1="${y(v)}" y2="${y(v)}"/><text class="axis" x="${P.l-6}" y="${y(v)+4}" text-anchor="end">${nf.format(v)}</text>`;
+  const every = Math.ceil(n / (opts.maxLabels || 12)); let hits = "";
+  values.forEach((v,i) => {
+    const x = P.l + i*bw + gap/2, h = Math.max(v>0?2:0, ih*v/top), r = Math.min(4, w/2, h);
+    const d = h ? `M${x},${y(0)} v${-(h-r)} q0,${-r} ${r},${-r} h${w-2*r} q${r},0 ${r},${r} v${h-r} z` : "";
+    hits += `<rect class="hit" x="${P.l+i*bw}" y="${P.t}" width="${bw}" height="${ih}" fill="transparent" data-i="${i}"/>`;
+    if (d) g += `<path class="barr" data-i="${i}" d="${d}"/>`;
+    if (i % every === 0) g += `<text class="axis" x="${x+w/2}" y="${H-6}" text-anchor="middle">${esc(labels[i])}</text>`;
+  });
+  el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(opts.aria||"")}">${g}${hits}</svg><div class="tip"></div>
+    <table class="sr"><tr>${labels.map(l=>`<th>${esc(l)}</th>`).join("")}</tr><tr>${values.map(v=>`<td>${v}</td>`).join("")}</tr></table>`;
+  const tip = el.querySelector(".tip"), svg = el.querySelector("svg");
+  el.querySelectorAll(".hit").forEach(h => {
+    const show = () => { const i=+h.dataset.i; const r=svg.getBoundingClientRect(), k=r.width/W;
+      el.querySelectorAll(".barr").forEach(b=>b.classList.toggle("hov", +b.dataset.i===i));
+      tip.textContent = `${opts.tipLabel ? opts.tipLabel(i) : labels[i]}: ${nf.format(values[i])} ${opts.unit||""}`;
+      tip.style.left = ((P.l+i*bw+bw/2)*k)+"px"; tip.style.top = (y(values[i])*k)+"px"; tip.style.opacity = 1; };
+    h.addEventListener("mouseenter", show); h.addEventListener("click", show);
+    h.addEventListener("mouseleave", () => { tip.style.opacity = 0; el.querySelectorAll(".barr").forEach(b=>b.classList.remove("hov")); });
+  });
+}
+function niceStep(max){ const raw = max/4, p = Math.pow(10, Math.floor(Math.log10(raw||1))); const m = raw/p; return Math.max(1, (m<=1?1:m<=2?2:m<=5?5:10)*p); }
+
+function render(){
+  const ds = DATA.days, sum = f => ds.reduce((s,d)=>s+(d[f]||0),0);
+  const trains = sumObj(ds,"trains"), searches = sumObj(ds,"searches");
+  const nTrain = Object.values(trains).reduce((a,b)=>a+b,0), nSearch = Object.values(searches).reduce((a,b)=>a+b,0);
+  const visits = sum("visits");
+  $("kVisits").textContent = nf.format(visits);
+  $("kUniq").textContent = nf.format(sum("uniques"));
+  $("kTrains").textContent = nf.format(nTrain);
+  $("kSearch").textContent = nf.format(nSearch);
+  $("kVisitsD").textContent = DAYS>1 ? `günde ort. ${nf.format(Math.round(visits/ds.length))}` : "bugün";
+  $("kTrainsD").textContent = visits ? `ziyaret başına ${(nTrain/visits).toLocaleString("tr-TR",{maximumFractionDigits:1})}` : "";
+  $("kSearchD").textContent = Object.keys(searches).length ? `${nf.format(Object.keys(searches).length)} farklı terim` : "";
+
+  if (DAYS === 1) { $("dailyTitle").textContent = "Bugün saat saat ziyaret"; const h = ds[0].hours;
+    bars($("daily"), h.map((_,i)=>String(i).padStart(2,"0")), h, { aria:"Bugün saatlik ziyaret", unit:"ziyaret", tipLabel:i=>`${String(i).padStart(2,"0")}:00`, maxLabels:12 }); }
+  else { $("dailyTitle").textContent = "Günlük ziyaret";
+    bars($("daily"), ds.map(d=>dayLbl(d.day)), ds.map(d=>d.visits), { aria:"Günlük ziyaret", unit:"ziyaret", maxLabels: Math.max(4, Math.floor(($("daily").clientWidth||600)/70)) }); }
+
+  const hours = Array(24).fill(0); ds.forEach(d => (d.hours||[]).forEach((v,i)=>hours[i]+=v));
+  bars($("hours"), hours.map((_,i)=>String(i).padStart(2,"0")), hours, { h: 160, aria:"Saatlere göre ziyaret", unit:"ziyaret", tipLabel:i=>`${String(i).padStart(2,"0")}:00–${String(i).padStart(2,"0")}:59`, maxLabels: 8 });
+
+  rows($("trains"), topN(trains, 10), trainLabel);
+  rows($("searches"), topN(searches, 15));
+  rows($("devices"), topN(sumObj(ds,"devices"), 5));
+  const cn = new Intl.DisplayNames(["tr"], { type: "region" });
+  rows($("countries"), topN(sumObj(ds,"countries"), 8), k => { try { return cn.of(k); } catch(_) { return k; } });
+  const refs = sumObj(ds,"refs"), direct = visits - Object.values(refs).reduce((a,b)=>a+b,0);
+  if (direct > 0) refs["Doğrudan / bilinmiyor"] = direct;
+  rows($("refs"), topN(refs, 8));
+}
+
+let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (DATA) render(); }, 150); });
+if (KEY) { $("login").hidden = true; $("app").hidden = false; syncNotrack(); load(); }
+</script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d5fd6">
+<title>Tren Takip</title>
+<style>
+  :root{
+    --bg:#f3f4f6; --card:#fff; --ink:#18212c; --mute:#677283; --line:#e3e7ec;
+    --sea:#d7e6f2; --land:#f6f3ec; --prov:#d9d1c3; --lake:#c3d9ee; --river:#a7c6e4;
+    --rail:#bdb5a8; --plabel:#a69d8f;
+    --route:#9db8e8; --done:#1d5fd6; --accent:#e4572e; --stfill:#fff; --ok:#22a35a;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#0f1318; --card:#181e26; --ink:#e6eaf0; --mute:#95a0ad; --line:#2a323d;
+      --sea:#132331; --land:#1e242c; --prov:#323a45; --lake:#1b3247; --river:#244661;
+      --rail:#4a525c; --plabel:#6c7480;
+      --route:#2f4f86; --done:#5b93f5; --accent:#ff7a50; --stfill:#181e26; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden}
+  body{background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+  button{font:inherit;color:inherit}
+  .wrap{max-width:1180px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;padding:max(12px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(12px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+  header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;flex:none}
+  .hleft{display:flex;align-items:center;gap:10px;min-width:0}
+  .back{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--card);cursor:pointer;flex:none;display:grid;place-items:center}
+  .back::before{content:"";width:8px;height:8px;border-left:2px solid var(--ink);border-bottom:2px solid var(--ink);transform:rotate(45deg);margin-left:3px}
+  .hright{display:flex;align-items:center;gap:6px;flex:none}
+  .info{width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--card);color:var(--mute);font:600 14px/1 Georgia,serif;cursor:pointer;flex:none}
+  h1{font-size:20px;margin:0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .route-sub{color:var(--mute);font-size:13.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .live{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mute);background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 11px;white-space:nowrap}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:var(--mute)}
+  .live.on{color:var(--ink)}
+  .live.on .dot{background:var(--ok);box-shadow:0 0 0 3px color-mix(in srgb,var(--ok) 25%,transparent)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+  [hidden]{display:none!important}
+
+  /* ---- liste ---- */
+  #home{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+  .search{flex:none;display:flex;align-items:center;gap:10px;padding:0 14px;height:48px;margin-bottom:10px}
+  .search input{flex:1;border:0;outline:0;background:none;font:inherit;font-size:16px;color:var(--ink);min-width:0}
+  .search::before{content:"";width:13px;height:13px;border:2px solid var(--mute);border-radius:50%;flex:none;box-shadow:5px 5px 0 -3px var(--mute)}
+  .tlist{flex:1 1 auto;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px;align-content:start;padding-bottom:4px}
+  .titem{padding:13px 15px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px}
+  .titem:hover{border-color:var(--done)}
+  .titem .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  .titem .nm{font-weight:650;font-size:16px}
+  .titem .no{color:var(--mute);font-size:12.5px}
+  .titem .rt{font-size:14.5px}
+  .titem .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mute);font-size:13px}
+  .titem .hit{color:var(--done);font-size:13px}
+  .badge{font-size:12px;border-radius:99px;padding:2px 9px;background:var(--line);color:var(--mute);white-space:nowrap}
+  .badge.run{background:color-mix(in srgb,var(--done) 14%,transparent);color:var(--done);font-weight:600}
+  .badge.live{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
+  .mini{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
+  .mini>i{display:block;height:100%;background:var(--done)}
+  .empty{color:var(--mute);padding:20px 4px}
+
+  /* ---- tren ---- */
+  #trainView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
+  .svcs{display:flex;gap:6px;margin:-2px 0 8px;flex:none;flex-wrap:wrap}
+  .svcs button{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:4px 11px;font-size:12.5px;cursor:pointer}
+  .svcs button.on{background:var(--done);border-color:var(--done);color:#fff}
+  .status{position:relative;display:grid;grid-template-columns:1fr 1.4fr 1.4fr 1.2fr;gap:14px;padding:14px 16px;margin-bottom:10px;flex:none;z-index:5}
+  .k{color:var(--mute);font-size:11.5px;text-transform:uppercase;letter-spacing:.05em}
+  .v{font-size:17px;font-weight:600;margin-top:2px;line-height:1.3}
+  .v small{display:block;font-weight:400;color:var(--mute);font-size:13px;margin-top:1px}
+  .bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:8px}
+  .bar>i{display:block;height:100%;background:var(--done);width:0;transition:width .6s}
+  .mapcard{position:relative;overflow:hidden;flex:1 1 auto;min-height:170px;touch-action:none}
+  svg{display:block;width:100%;height:100%;cursor:grab;user-select:none;-webkit-user-select:none}
+  svg.drag{cursor:grabbing}
+  .mapbtns{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+  .mapbtns button{min-width:38px;height:38px;padding:0 10px;font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
+  .mapbtns button.on{background:var(--done);color:#fff;border-color:var(--done)}
+  .mapbtns .z{font-size:20px;line-height:1}
+  .khead{display:flex;align-items:center;justify-content:space-between;gap:6px}
+  .khead .k,.allbtn{white-space:nowrap}
+  .mob{display:none}
+  .allbtn{font-size:12.5px;color:var(--done);background:none;border:0;padding:2px 0;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .allbtn i{width:6px;height:6px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-top:-3px;transition:transform .15s}
+  .allbtn[aria-expanded=true] i{transform:rotate(-135deg);margin-top:3px}
+  .allpanel{position:absolute;left:-1px;right:-1px;top:calc(100% - 8px);background:var(--card);border:1px solid var(--line);border-top:0;border-radius:0 0 14px 14px;box-shadow:0 12px 24px rgba(0,0,0,.14);overflow:hidden}
+  .alllist{position:relative;max-height:min(55dvh,460px);overflow:auto;padding:4px 0;overscroll-behavior:contain}
+  .stop{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;padding:6px 16px;font-size:14px;cursor:pointer}
+  .stop .t{font-variant-numeric:tabular-nums;color:var(--mute);text-align:right}
+  .stop .t b{color:var(--ink);font-weight:600}
+  .stop.passed .name,.stop.passed .t{color:var(--mute);opacity:.75}
+  .stop.next{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+  .stop.next .name{font-weight:650}
+  .stop.now{background:color-mix(in srgb,var(--done) 9%,transparent)}
+  .pin{width:12px;height:12px;border-radius:50%;border:2px solid var(--done);background:var(--stfill);justify-self:center}
+  .passed .pin{background:var(--done)}
+  .next .pin{border-color:var(--accent);background:var(--accent)}
+  .now .pin{border-color:var(--accent);background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 25%,transparent)}
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;padding:16px;z-index:50}
+  .modal .box{background:var(--card);color:var(--ink);border-radius:14px;max-width:460px;width:100%;padding:18px 18px 14px;font-size:14px;line-height:1.6;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+  .modal h2{font-size:16px;margin:0 0 8px}
+  .modal .muted{color:var(--mute);font-size:12.5px}
+  .modal .close{float:right;margin-top:6px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:6px 12px;cursor:pointer}
+  .stl{font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-linejoin:round}
+  .stl.minor{font-weight:400;fill:var(--mute)}
+  .pl{fill:var(--plabel);font-style:italic;letter-spacing:.06em;text-transform:uppercase}
+
+  @media (max-width:760px){
+    .wrap{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
+    h1{font-size:18px}
+    .tlist{grid-template-columns:1fr}
+    .status{grid-template-columns:1fr 1fr;gap:10px 12px;padding:11px 13px}
+    .v{font-size:15px}
+    .k{font-size:10.5px}
+    .status .v small{font-size:12.5px}
+    .mapcard{border-radius:12px}
+    header{margin-bottom:8px}
+    .mapbtns{right:8px;top:auto;bottom:8px;flex-direction:row;gap:5px}
+    .mapbtns button{min-width:38px;height:38px;font-size:13px;padding:0 8px}
+    .dsk{display:none}
+    .mob{display:inline}
+  }
+  @media (max-width:380px){ .live .lt{display:none} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="hleft">
+      <button class="back" id="backBtn" type="button" aria-label="Tüm trenler" hidden></button>
+      <div style="min-width:0">
+        <h1 id="hTitle">Tren Takip</h1>
+        <div class="route-sub" id="hSub">Anahat trenleri, canlı konum</div>
+      </div>
+    </div>
+    <div class="hright"><div class="live" id="live" hidden><span class="dot"></span><span class="lt" id="liveText">Tarifeye göre</span></div><button class="info" id="infoBtn" type="button" aria-label="Hakkında">i</button></div>
+  </header>
+
+  <!-- liste -->
+  <div id="home">
+    <label class="card search"><input id="q" type="search" placeholder="Tren, şehir veya istasyon ara" autocomplete="off" enterkeyhint="search"></label>
+    <div class="tlist" id="tlist"></div>
+  </div>
+
+  <!-- tren -->
+  <div id="trainView" hidden>
+    <div class="svcs" id="svcs" hidden></div>
+    <div class="card status" id="statusCard">
+      <div><div class="k">Durum</div><div class="v" id="sState">–</div></div>
+      <div><div class="k">Yolculuk</div><div class="v" id="sProg">–</div><div class="bar"><i id="pbar"></i></div></div>
+      <div><div class="k">Konum</div><div class="v" id="sWhere">–</div></div>
+      <div><div class="khead"><span class="k">Sonraki durak</span><button type="button" class="allbtn" id="allBtn" aria-expanded="false"><span class="dsk">Tüm duraklar</span><span class="mob">Tümü</span><i></i></button></div><div class="v" id="sNext">–</div></div>
+      <div class="allpanel" id="allPanel" hidden><div class="alllist" id="allList"></div></div>
+    </div>
+    <div class="card mapcard" id="mapcard">
+      <svg id="map" role="img" aria-label="Güzergah haritası"></svg>
+      <div class="mapbtns">
+        <button class="z" id="zin" type="button" aria-label="Yakınlaştır">+</button>
+        <button class="z" id="zout" type="button" aria-label="Uzaklaştır">−</button>
+        <button id="follow" type="button" title="Treni takip et">Takip</button>
+        <button id="fit" type="button" title="Tüm güzergah">Hat</button>
+        <button id="tr" type="button" title="Tüm Türkiye">TR</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="modal" hidden><div class="box">
+    <h2>Hakkında</h2>
+    Trenlerin konumu TCDD'den alınan veriyle hesaplanır. GPS değildir; ara istasyonların haritadaki yeri yaklaşıktır.
+    <div class="muted" id="dbg" style="margin-top:6px"></div>
+    <div class="muted" style="margin-top:8px">Harita: Natural Earth · il sınırları: tr-geojson</div>
+    <button class="close" id="closeModal" type="button">Kapat</button><div style="clear:both"></div>
+  </div></div>
+</div>
+
+<script>
+const BM = __BASEMAP__;
+const LINES = __LINES__;
+const TRAINS = __TRAINS__;
+const TZ_OFF = 180, $ = id => document.getElementById(id);
+const toMin = s => { const [h,m]=s.split(":").map(Number); return h*60+m; };
+const fmt = m => { m=((Math.round(m)%1440)+1440)%1440; return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0"); };
+const dur = m => { m=Math.max(0,Math.round(m)); const h=Math.floor(m/60); return h ? `${h} sa ${m%60} dk` : `${m} dk`; };
+const norm = s => s.toLocaleLowerCase("tr-TR").replace(/[çğıöşüâî]/g,c=>({ç:"c",ğ:"g",ı:"i",ö:"o",ş:"s",ü:"u",â:"a",î:"i"}[c])).replace(/[^a-z0-9 ]/g," ");
+const short = n => n.replace(" A.Çetinkaya","").replace(" (Basmane)","").replace(" Gar","");
+
+// ---------- tren modelleri ----------
+TRAINS.forEach(T=>{
+  T.DEP = toMin(T.stops[0].d);
+  let prev=T.DEP;
+  const L = LINES[T.line];
+  T.st = T.stops.map(s=>{
+    const conv = x => { if(!x) return null; let v=toMin(x); while(v<prev) v+=1440; prev=v; return v-T.DEP; };
+    const arr=conv(s.a), dep=conv(s.d);
+    const g=L.stations[s.tcdd];
+    return {...s, arr:arr??dep, dep:dep??arr, xy:g.xy, s:g.s};
+  });
+  T.TOTAL = T.st[T.st.length-1].arr;
+  T.days = Math.floor((T.DEP+T.TOTAL)/1440); // kaç gün sürüyor
+  T.search = norm([T.name,T.no,T.from,T.to,...T.stops.map(s=>s.name)].join(" "));
+});
+
+// ---------- zaman ----------
+function trNow(){ const loc=new Date(Date.now()+TZ_OFF*60000); return {ymd:loc.toISOString().slice(0,10), min:loc.getUTCHours()*60+loc.getUTCMinutes()+loc.getUTCSeconds()/60}; }
+function addDays(ymd,k){ const d=new Date(ymd+"T12:00:00Z"); d.setUTCDate(d.getUTCDate()+k); return d.toISOString().slice(0,10); }
+const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleDateString("tr-TR",{day:"numeric",month:"short",timeZone:"UTC"}); };
+
+// canlı veri
+let LIVE={}; // "no|service" -> status
+async function fetchLive(){
+  try{ const r=await fetch("/api/status",{cache:"no-store"}); if(!r.ok) throw 0; const j=await r.json(); LIVE = (j && j.trains) || {}; }
+  catch(e){ LIVE={}; }
+  render();
+}
+function liveFor(T,service){ const L=LIVE[T.no+"|"+service]; if(!L || !L.updatedAt) return null; const age=(Date.now()-Date.parse(L.updatedAt))/60000; return age<100 ? {...L, age} : null; }
+
+// Bir sefer (kalkış günü) için durum
+function serviceState(T, service){
+  const {ymd,min}=trNow();
+  const k = Math.round((Date.parse(ymd)-Date.parse(service))/86400000);
+  const L = liveFor(T,service);
+  const delay = L && Number.isFinite(L.delayMin) ? L.delayMin : (L && Number.isFinite(L.lastDelay) ? L.lastDelay : 0);
+  let t = min + k*1440 - T.DEP - delay;
+  const st=T.st, N=st.length;
+  let running = t>=0 && t<=T.TOTAL, arrived = t>T.TOTAL || !!(L && L.arrived);
+  if(arrived){ running=false; }
+  let sPos=st[0].s, atIdx=0, nextIdx=1, atStation=true, approaching=false;
+  if(running){
+    nextIdx=N; atIdx=N-1; sPos=st[N-1].s;
+    for(let i=0;i<N;i++){ const s=st[i], n=st[i+1];
+      if(t>=s.arr && t<=s.dep){ atIdx=i; nextIdx=i+1; sPos=s.s; atStation=true; break; }
+      if(n && t>s.dep && t<n.arr){ const f=(t-s.dep)/(n.arr-s.dep); atIdx=i; nextIdx=i+1; sPos=s.s+(n.s-s.s)*f; atStation=false; break; } }
+    if(L){ // canlı sınır
+      const lp=L.lastPassedIdx, nx=L.nextIdx;
+      if(lp!=null && (atIdx<lp || (atIdx===lp && atStation))){ atIdx=lp; nextIdx=lp+1; atStation=false; const q=st[Math.min(N-1,lp+1)]; sPos=st[lp].s+(q.s-st[lp].s)*0.05; }
+      if(nx!=null && nx<N && ((T.dir>0 && sPos>st[nx].s) || (T.dir<0 && sPos<st[nx].s))){ sPos=st[nx].s; atIdx=nx-1; nextIdx=nx; atStation=false; approaching=true; }
+    }
+  } else if(arrived){ sPos=st[N-1].s; atIdx=N-1; nextIdx=N; }
+  return {T,service,t,delay,running,arrived,sPos,atIdx,nextIdx,atStation,approaching,live:L,
+          pct: arrived?1: running? Math.min(1,t/T.TOTAL):0};
+}
+// O an ilgilenilen seferler: yolda olanlar; yoksa sıradaki kalkış
+function servicesFor(T){
+  const {ymd,min}=trNow(), out=[];
+  for(let k=T.days+1;k>=0;k--){ const sv=addDays(ymd,-k); const s=serviceState(T,sv); if(s.running) out.push(s); }
+  return out;
+}
+function nextDeparture(T){ const {ymd,min}=trNow(); return min < T.DEP ? {service:ymd, inMin:T.DEP-min} : {service:addDays(ymd,1), inMin:T.DEP+1440-min}; }
+
+// ---------- liste ----------
+const qI=$("q"), tlist=$("tlist");
+function renderList(){
+  const q=norm(qI.value).trim(), words=q.split(/\s+/).filter(Boolean);
+  const items=TRAINS.map(T=>{
+    if(words.length && !words.every(w=>T.search.includes(w))) return null;
+    const run=servicesFor(T);
+    let hit="";
+    if(words.length){ const s=T.st.find(s=>words.some(w=>norm(s.name).includes(w)) && s!==T.st[0] && s!==T.st[T.st.length-1]);
+      if(s) hit=`${s.name}: ${s.a||s.d}`; }
+    return {T,run,hit};
+  }).filter(Boolean).sort((a,b)=>(b.run.length>0)-(a.run.length>0));
+  tlist.innerHTML = items.length ? items.map(({T,run,hit})=>{
+    const r=run[0], liveOn = run.some(s=>s.live);
+    const badge = r ? `<span class="badge ${liveOn?"live":"run"}">Yolda${run.length>1?" ×"+run.length:""}</span>` : `<span class="badge">Kalkış ${T.stops[0].d}</span>`;
+    const meta = r ? `<span>${r.atStation? short(r.T.st[r.atIdx].name) : short(r.T.st[r.atIdx].name)+" → "+short(r.T.st[Math.min(r.nextIdx,r.T.st.length-1)].name)}</span><span>%${Math.round(r.pct*100)}</span>`
+                   : `<span>${T.stops[0].d} → ${T.stops[T.stops.length-1].a} · her gün</span><span>${dur(nextDeparture(T).inMin)} sonra</span>`;
+    return `<button class="titem" data-slug="${T.slug}"><div class="top"><span class="nm">${T.name}</span>${badge}</div>
+      <div class="rt">${T.from} → ${T.to}</div>${r?`<div class="mini"><i style="width:${r.pct*100}%"></i></div>`:""}
+      <div class="meta">${meta}</div>${hit?`<div class="hit">${hit}</div>`:""}</button>`;
+  }).join("") : `<div class="empty">Sonuç bulunamadı.</div>`;
+  tlist.querySelectorAll(".titem").forEach(b=>b.onclick=()=>{ location.hash="tren-"+b.dataset.slug; });
+}
+qI.addEventListener("input",()=>{ renderList(); clearTimeout(qTimer); qTimer=setTimeout(trackSearch,1500); });
+qI.addEventListener("keydown",e=>{ if(e.key==="Enter"){ clearTimeout(qTimer); trackSearch(); qI.blur(); } });
+
+// ---------- harita ----------
+const NS="http://www.w3.org/2000/svg", svg=$("map");
+const W=BM.W, H=BM.H;
+const el=(t,a,p=svg)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);p.appendChild(e);return e;};
+const root = el("g",{});
+el("rect",{x:-3*W,y:-4*H,width:7*W,height:9*H,fill:"var(--sea)"},root);
+el("path",{d:BM.land,fill:"var(--land)"},root);
+el("path",{d:BM.prov,fill:"none",stroke:"var(--prov)","stroke-width":1,"vector-effect":"non-scaling-stroke","stroke-linejoin":"round"},root);
+el("path",{d:BM.lakes,fill:"var(--lake)"},root);
+el("path",{d:BM.rivers,fill:"none",stroke:"var(--river)","stroke-width":1,"vector-effect":"non-scaling-stroke"},root);
+el("path",{d:BM.rail,fill:"none",stroke:"var(--rail)","stroke-width":1.2,"stroke-dasharray":"4 3","vector-effect":"non-scaling-stroke"},root);
+const plTexts = BM.labels.map(([n,x,y])=>{const t=el("text",{x,y,"text-anchor":"middle",class:"pl"},root); t.textContent=n; return t;});
+const routeLine = el("polyline",{fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},root);
+const doneLine = el("polyline",{fill:"none",stroke:"var(--done)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},root);
+const stG = el("g",{},root), lblG = el("g",{},root), ghostG = el("g",{},root), trainG = el("g",{},root);
+const halo = el("circle",{fill:"var(--accent)",opacity:.2},trainG);
+const core = el("circle",{fill:"var(--accent)",stroke:"#fff"},trainG);
+
+let CUR=null; // {T, R, cum, RBOX, dots, service}
+function setupMap(T){
+  const L=LINES[T.line], R=L.route, cum=[0];
+  for(let i=1;i<R.length;i++) cum.push(cum[i-1]+Math.hypot(R[i][0]-R[i-1][0],R[i][1]-R[i-1][1]));
+  routeLine.setAttribute("points",R.map(p=>p.join(",")).join(" "));
+  stG.innerHTML=""; lblG.innerHTML="";
+  const MAJOR=new Set(); T.st.forEach((s,i)=>{ if(i===0||i===T.st.length-1||(s.dep-s.arr)>=6) MAJOR.add(i); });
+  const dots=T.st.map((s,i)=>{ const [x,y]=s.xy, major=MAJOR.has(i);
+    const c=el("circle",{cx:x,cy:y,fill:"var(--stfill)",stroke:"var(--done)","stroke-width":2,"vector-effect":"non-scaling-stroke"},stG);
+    el("title",{},c).textContent=s.name;
+    const t=el("text",{x,y,"text-anchor":"middle",class:"stl"+(major?"":" minor")},lblG); t.textContent=short(s.name); t._up=(i%2===0);
+    return {c,t,major}; });
+  const xs=R.map(p=>p[0]), ys=R.map(p=>p[1]);
+  CUR={T,R,cum,dots,RBOX:{x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys)}};
+}
+function atS(s){ const {R,cum}=CUR; s=Math.max(0,Math.min(cum[cum.length-1],s));
+  let lo=0,hi=cum.length-1; while(hi-lo>1){const m=(lo+hi)>>1; if(cum[m]<=s) lo=m; else hi=m;}
+  const f=cum[hi]===cum[lo]?0:(s-cum[lo])/(cum[hi]-cum[lo]);
+  return {x:R[lo][0]+(R[hi][0]-R[lo][0])*f, y:R[lo][1]+(R[hi][1]-R[lo][1])*f, i:lo}; }
+
+const aspect=()=>{const r=svg.getBoundingClientRect(); return r.width? r.height/r.width : H/W;};
+const scrW=()=>svg.getBoundingClientRect().width||1000;
+let vb={x:0,y:0,w:W}, follow=true, trainXY={x:0,y:0};
+const closeW=()=>Math.min(scrW()*0.9, (CUR.RBOX.x1-CUR.RBOX.x0)*0.45, 900);
+const MIN_W=()=>40, MAX_W=()=>Math.max(W, H/aspect())*1.08;
+function applyVB(){
+  vb.w=Math.max(MIN_W(),Math.min(MAX_W(),vb.w)); const h=vb.w*aspect();
+  svg.setAttribute("viewBox",`${vb.x} ${vb.y} ${vb.w} ${h}`);
+  const z=scrW()/vb.w;
+  if(CUR) CUR.dots.forEach(d=>{ d.c.setAttribute("r",(d.major?4.5:3.2)/z);
+    d.t.style.display=((d.major && z>0.9) || z>3) ? "" : "none";
+    d.t.setAttribute("font-size",(d.major?12:11)/z); d.t.setAttribute("stroke-width",3/z); d.t.setAttribute("dy", d.t._up? -9/z : 17/z); });
+  plTexts.forEach(t=>{t.setAttribute("font-size",(z<1?10:12)/z); t.style.display = z>0.35 ? "" : "none";});
+  halo.setAttribute("r",16/z); core.setAttribute("r",7/z); core.setAttribute("stroke-width",2.5/z);
+  ghostG.querySelectorAll("circle").forEach(c=>c.setAttribute("r",6/z));
+}
+const btnF=$("follow");
+function setFollow(v){follow=v;btnF.classList.toggle("on",v);}
+function centerOn(x,y){vb.x=x-vb.w/2; vb.y=y-vb.w*aspect()/2; applyVB();}
+function fitBox(x0,y0,x1,y1,pad=1.12){ vb.w=Math.max((x1-x0)*pad,(y1-y0)*pad/aspect()); centerOn((x0+x1)/2,(y0+y1)/2); }
+function zoomAt(f,cx,cy){ const nw=Math.max(MIN_W(),Math.min(MAX_W(),vb.w*f)); const k=nw/vb.w; vb.x=cx-(cx-vb.x)*k; vb.y=cy-(cy-vb.y)*k; vb.w=nw; if(follow) centerOn(trainXY.x,trainXY.y); else applyVB(); }
+function toSvg(cx,cy){const r=svg.getBoundingClientRect(); return {x:vb.x+(cx-r.left)/r.width*vb.w, y:vb.y+(cy-r.top)/r.height*vb.w*aspect()};}
+svg.addEventListener("wheel",e=>{e.preventDefault(); const p=toSvg(e.clientX,e.clientY); zoomAt(e.deltaY>0?1.2:1/1.2,p.x,p.y);},{passive:false});
+const ptrs=new Map(); let gesture=null;
+function gstate(){ const a=[...ptrs.values()]; if(a.length===1) return {n:1,x:a[0].x,y:a[0].y};
+  return {n:2,x:(a[0].x+a[1].x)/2,y:(a[0].y+a[1].y)/2,d:Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}; }
+svg.addEventListener("pointerdown",e=>{ ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); svg.setPointerCapture(e.pointerId); svg.classList.add("drag"); gesture={start:gstate(), vb:{...vb}, moved:false}; });
+svg.addEventListener("pointermove",e=>{ if(!ptrs.has(e.pointerId)||!gesture) return; ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  const g=gstate(), s=gesture.start, r=svg.getBoundingClientRect();
+  if(g.n!==s.n){ gesture={start:g, vb:{...vb}, moved:gesture.moved}; return; }
+  if(Math.abs(g.x-s.x)+Math.abs(g.y-s.y)>4 || g.n===2){ if(!gesture.moved){gesture.moved=true; setFollow(false);} }
+  if(!gesture.moved) return;
+  const base=gesture.vb; let w=base.w;
+  if(g.n===2 && s.d>0) w=Math.max(MIN_W(),Math.min(MAX_W(),base.w*s.d/g.d));
+  const ax=base.x+(s.x-r.left)/r.width*base.w, ay=base.y+(s.y-r.top)/r.height*base.w*aspect();
+  vb.w=w; vb.x=ax-(g.x-r.left)/r.width*w; vb.y=ay-(g.y-r.top)/r.height*w*aspect(); applyVB(); });
+const endPtr=e=>{ ptrs.delete(e.pointerId); if(!ptrs.size){ gesture=null; svg.classList.remove("drag"); } else gesture={start:gstate(), vb:{...vb}, moved:true}; };
+svg.addEventListener("pointerup",endPtr); svg.addEventListener("pointercancel",endPtr);
+$("zin").onclick=()=>zoomAt(1/1.6,vb.x+vb.w/2,vb.y+vb.w*aspect()/2);
+$("zout").onclick=()=>zoomAt(1.6,vb.x+vb.w/2,vb.y+vb.w*aspect()/2);
+$("fit").onclick=()=>{setFollow(false); const b=CUR.RBOX; fitBox(b.x0,b.y0,b.x1,b.y1);};
+$("tr").onclick=()=>{setFollow(false); fitBox(0,0,W,H,1.02);};
+btnF.onclick=()=>{ setFollow(!follow); if(follow){ if(vb.w>closeW()*1.5) vb.w=closeW(); centerOn(trainXY.x,trainXY.y);} };
+if(window.ResizeObserver) new ResizeObserver(()=>{ if(!CUR) return; if(follow) centerOn(trainXY.x,trainXY.y); else applyVB(); }).observe(svg);
+
+// ---------- tren sayfası ----------
+const allBtn=$("allBtn"), allPanel=$("allPanel"), allList=$("allList");
+allBtn.addEventListener("click",()=>{ const open=allPanel.hidden; allPanel.hidden=!open; allBtn.setAttribute("aria-expanded",open);
+  if(open){ const n=allList.querySelector(".next,.now"); if(n) allList.scrollTop=n.offsetTop-allList.clientHeight/3; } });
+document.addEventListener("click",e=>{ if(!allPanel.hidden && !e.target.closest(".status")){ allPanel.hidden=true; allBtn.setAttribute("aria-expanded",false);} });
+let lastStopsKey="", chosenService=null, firstFrame=true;
+function renderStops(S){
+  const T=S.T, st=T.st;
+  const key=[T.slug,S.service,S.running,S.atIdx,S.atStation,S.nextIdx,Math.round(S.delay)].join("|");
+  if(key===lastStopsKey) return; lastStopsKey=key;
+  const passedUpTo = S.arrived ? st.length-1 : !S.running ? -1 : (S.atStation ? S.atIdx-1 : S.atIdx);
+  const ni = S.running ? S.nextIdx : (S.arrived ? -1 : 0);
+  allList.innerHTML = st.map((s,i)=>{
+    let cls="", tm;
+    if(i<=passedUpTo){ cls="passed"; tm=s.d||s.a; }
+    else if(S.running && S.atStation && i===S.atIdx){ cls="now"; tm=`<b>${fmt(T.DEP+s.dep+S.delay)}</b>`; }
+    else { cls=i===ni?"next":""; const v=fmt(T.DEP+(i===0?s.dep:s.arr)+S.delay); tm=i===ni?`<b>${v}</b>`:v; }
+    return `<div class="stop ${cls}" data-i="${i}"><span class="pin"></span><div class="name">${s.name}</div><div class="t">${tm}</div></div>`;
+  }).join("");
+  allList.querySelectorAll(".stop").forEach(r=>r.addEventListener("click",()=>{ const s=st[+r.dataset.i]; setFollow(false); if(vb.w>closeW()) vb.w=closeW()*0.8; centerOn(s.xy[0],s.xy[1]); }));
+}
+function renderTrain(T){
+  const run=servicesFor(T);
+  // sefer seçimi (Doğu Ekspresi gibi uzun trenlerde aynı anda iki sefer yolda olabilir)
+  if(!run.find(s=>s.service===chosenService)) chosenService = run.length ? run[0].service : null;
+  const svcs=$("svcs");
+  if(run.length>1){ svcs.hidden=false; svcs.innerHTML=run.map(s=>`<button data-s="${s.service}" class="${s.service===chosenService?"on":""}">${dayLabel(s.service)} kalkışlı</button>`).join("");
+    svcs.querySelectorAll("button").forEach(b=>b.onclick=()=>{ chosenService=b.dataset.s; lastStopsKey=""; firstFrame=true; render(); }); }
+  else svcs.hidden=true;
+  let S = run.find(s=>s.service===chosenService);
+  if(!S){ const nd=nextDeparture(T); S=serviceState(T,nd.service); S.waitMin=nd.inMin; }
+  const st=T.st, N=st.length;
+
+  // canlı rozet
+  const L=S.live; $("live").hidden=false; $("live").className="live"+(L?" on":"");
+  $("liveText").textContent = L ? `Canlı · ${Math.max(0,Math.round(L.age))} dk önce` : "Tarifeye göre";
+  $("dbg").textContent = L ? `Son güncelleme: ${new Date(L.updatedAt).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Istanbul"})}` : "";
+
+  // harita
+  const p=atS(S.sPos); trainXY={x:p.x,y:p.y};
+  trainG.setAttribute("transform",`translate(${p.x},${p.y})`);
+  const R=CUR.R;
+  const done = !S.running && !S.arrived ? [] : T.dir>0 ? [...R.slice(0,p.i+1),[p.x,p.y]] : [[p.x,p.y],...R.slice(p.i+1)];
+  doneLine.setAttribute("points", done.map(q=>q.join(",")).join(" "));
+  const passedUpTo = S.arrived ? N-1 : S.running ? S.atIdx : -1;
+  CUR.dots.forEach((d,i)=>d.c.setAttribute("fill", i<=passedUpTo ? "var(--done)" : "var(--stfill)"));
+  ghostG.innerHTML=""; run.filter(s=>s!==S).forEach(o=>{ const q=atS(o.sPos); const c=el("circle",{cx:q.x,cy:q.y,fill:"var(--accent)",opacity:.45,stroke:"#fff","stroke-width":1.5,"vector-effect":"non-scaling-stroke"},ghostG); el("title",{},c).textContent=`${dayLabel(o.service)} kalkışlı sefer`; });
+
+  // durum kartı
+  let state;
+  if(S.running){
+    const n=st[S.nextIdx];
+    state = S.atStation ? "İstasyonda" : "Yolda";
+    $("sWhere").innerHTML = S.atStation ? `${st[S.atIdx].name}<small>istasyonda bekliyor</small>`
+      : `${short(st[S.atIdx].name)} → ${short(n.name)}<small>${S.approaching?"istasyona yaklaşıyor":"iki istasyon arasında"}</small>`;
+    $("sNext").innerHTML = `${n.name}<small>${S.approaching ? "birazdan" : fmt(T.DEP+n.arr+S.delay)+" · "+dur(n.arr-S.t)+" sonra"}</small>`;
+    $("sProg").innerHTML = `%${Math.round(S.pct*100)}<small>varışa ${dur(T.TOTAL-S.t)}</small>`;
+  } else {
+    state = "Kalkmayı bekliyor";
+    $("sWhere").innerHTML = st[0].name;
+    $("sNext").innerHTML = `Kalkış ${T.stops[0].d}<small>${dur(S.waitMin)} sonra</small>`;
+    $("sProg").innerHTML = `%0<small>yolculuk ${dur(T.TOTAL)}</small>`;
+  }
+  $("sState").textContent=state; $("pbar").style.width=(S.running?S.pct*100:0)+"%";
+  renderStops(S);
+
+  if(firstFrame){ firstFrame=false;
+    if(S.running){ vb.w=closeW(); setFollow(true); centerOn(p.x,p.y); }
+    else { setFollow(false); const b=CUR.RBOX; fitBox(b.x0,b.y0,b.x1,b.y1); } }
+  else if(follow) centerOn(p.x,p.y);
+}
+
+
+// ---------- anonim ziyaret istatistiği ----------
+const VID=(()=>{ try{ let v=localStorage.getItem("tt_vid"); if(!v){ v=(crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()); localStorage.setItem("tt_vid",v);} return v; }catch(e){ return null; } })();
+const NOTRACK=(()=>{ try{ return localStorage.getItem("tt_admin")==="1"; }catch(e){ return false; } })();
+function track(t,extra={}){
+  if(NOTRACK || !/^https?:$/.test(location.protocol)) return;
+  const body=JSON.stringify({t,v:VID,...extra});
+  try{ if(navigator.sendBeacon && navigator.sendBeacon("/api/track",new Blob([body],{type:"application/json"}))) return; }catch(e){}
+  fetch("/api/track",{method:"POST",body,keepalive:true,headers:{"content-type":"application/json"}}).catch(()=>{});
+}
+let lastTrackedQ="", qTimer=null;
+function trackSearch(){ const q=qI.value.trim(); if(q.length<2 || norm(q)===norm(lastTrackedQ)) return; lastTrackedQ=q; track("search",{q}); }
+
+// ---------- yönlendirme ----------
+let VIEW=null;
+function route(){
+  const m=location.hash.match(/^#tren-([a-z0-9-]+)$/);
+  const T=m && TRAINS.find(t=>t.slug===m[1]);
+  if(T){
+    if(VIEW!==T){ VIEW=T; track("train",{s:T.slug}); setupMap(T); chosenService=null; lastStopsKey=""; firstFrame=true; allPanel.hidden=true; allBtn.setAttribute("aria-expanded",false); }
+    $("home").hidden=true; $("trainView").hidden=false; $("backBtn").hidden=false;
+    $("hTitle").textContent=T.name; $("hSub").innerHTML=`${T.from} → ${T.to}<span class="dsk"> · her gün ${T.stops[0].d}</span>`;
+    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)}`;
+  } else {
+    VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true; $("live").hidden=true;
+    $("hTitle").textContent="Tren Takip"; $("hSub").textContent="Anahat trenleri, canlı konum"; document.title="Tren Takip";
+  }
+  render();
+}
+function render(){ if(VIEW) renderTrain(VIEW); else renderList(); }
+$("backBtn").onclick=()=>{ location.hash=""; };
+const modal=$("modal");
+$("infoBtn").onclick=()=>{modal.hidden=false;};
+$("closeModal").onclick=()=>{modal.hidden=true;};
+modal.addEventListener("click",e=>{ if(e.target===modal) modal.hidden=true; });
+window.addEventListener("hashchange",route);
+track("visit",{r:document.referrer||null});
+route(); fetchLive();
+setInterval(render,5000);
+setInterval(fetchLive,60000);
+</script>
+</body>
+</html>
