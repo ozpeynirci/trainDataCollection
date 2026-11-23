@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d5fd6">
-<title>Vagonda · Trenin şu an nerede?</title>
+<title>Vagonda · Canlı tren takip</title>
 <style>
   :root{
     --bg:#f3f4f6; --card:#fff; --ink:#18212c; --mute:#677283; --line:#e3e7ec;
@@ -54,6 +54,9 @@
   .titem .hit{color:var(--done);font-size:13px}
   .badge{font-size:12px;border-radius:99px;padding:2px 9px;background:var(--line);color:var(--mute);white-space:nowrap}
   .badge.run{background:color-mix(in srgb,var(--done) 14%,transparent);color:var(--done);font-weight:600}
+  .dly{font-size:12px;font-weight:600;border-radius:99px;padding:1px 7px;margin-left:6px}
+  .dly.late{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+  .dly.early{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
   .badge.live{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
   .mini{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
   .mini>i{display:block;height:100%;background:var(--done)}
@@ -154,7 +157,7 @@
       <button class="back" id="backBtn" type="button" aria-label="Tüm trenler" hidden></button>
       <div style="min-width:0">
         <h1 id="hTitle">Vagonda</h1>
-        <div class="route-sub" id="hSub">Trenin şu an nerede?</div>
+        <div class="route-sub" id="hSub">Canlı tren takip</div>
       </div>
     </div>
     <div class="hright"><div class="live" id="live" hidden><span class="dot"></span><span class="lt" id="liveText">Tarifeye göre</span></div><button class="info" id="infoBtn" type="button" aria-label="Hakkında">i</button></div>
@@ -235,7 +238,7 @@ TRAINS.forEach(T=>{
 // ---------- zaman ----------
 function trNow(){ const loc=new Date(Date.now()+TZ_OFF*60000); return {ymd:loc.toISOString().slice(0,10), min:loc.getUTCHours()*60+loc.getUTCMinutes()+loc.getUTCSeconds()/60}; }
 function addDays(ymd,k){ const d=new Date(ymd+"T12:00:00Z"); d.setUTCDate(d.getUTCDate()+k); return d.toISOString().slice(0,10); }
-const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleDateString("tr-TR",{day:"numeric",month:"short",timeZone:"UTC"}); };
+const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleDateString("tr-TR",{day:"numeric",month:"long",timeZone:"UTC"}); };
 
 // canlı veri
 let LIVE={}; // "no|service" -> status
@@ -296,7 +299,7 @@ function renderList(){
   tlist.innerHTML = items.length ? items.map(({T,run,hit})=>{
     const r=run[0], liveOn = run.some(s=>s.live);
     const badge = r ? `<span class="badge ${liveOn?"live":"run"}">Yolda${run.length>1?" ×"+run.length:""}</span>` : `<span class="badge">Kalkış ${T.stops[0].d}</span>`;
-    const meta = r ? `<span>${r.atStation? short(r.T.st[r.atIdx].name) : short(r.T.st[r.atIdx].name)+" → "+short(r.T.st[Math.min(r.nextIdx,r.T.st.length-1)].name)}</span><span>%${Math.round(r.pct*100)}</span>`
+    const meta = r ? `<span>${r.atStation? short(r.T.st[r.atIdx].name) : short(r.T.st[r.atIdx].name)+" → "+short(r.T.st[Math.min(r.nextIdx,r.T.st.length-1)].name)}</span><span>%${Math.round(r.pct*100)}${delayChip(r)}</span>`
                    : `<span>${T.stops[0].d} → ${T.stops[T.stops.length-1].a} · her gün</span><span>${dur(nextDeparture(T).inMin)} sonra</span>`;
     return `<button class="titem" data-slug="${T.slug}"><div class="top"><span class="nm"><span class="ldot" style="background:${LINE_COLOR[T.line]}"></span>${T.name}</span>${badge}</div>
       <div class="rt">${T.from} → ${T.to}</div>${r?`<div class="mini"><i style="width:${r.pct*100}%"></i></div>`:""}
@@ -516,7 +519,7 @@ function route(){
     VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true; $("live").hidden=true;
     $("homeMapSlot").appendChild($("mapcard")); setMode("ov");
     if(wasTrain){ ovInit=true; requestAnimationFrame(()=>{ setFollow(false); fitBox(ALLBOX.x0,ALLBOX.y0,ALLBOX.x1,ALLBOX.y1,1.08); }); }
-    $("hTitle").textContent="Vagonda"; $("hSub").textContent="Trenin şu an nerede?"; document.title="Vagonda · Trenin şu an nerede?";
+    $("hTitle").textContent="Vagonda"; $("hSub").textContent="Canlı tren takip"; document.title="Vagonda · Canlı tren takip";
   }
   render();
 }
@@ -529,6 +532,7 @@ function setMode(m){
   btnF.style.display = ov ? "none" : "";
   if(!ov) $("pop").hidden=true;
 }
+function delayChip(S){ if(!S||!S.live) return ""; const d=S.rawDelay; return d>=1?`<span class="dly late">+${d} dk</span>`:d<=-1?`<span class="dly early">${-d} dk erken</span>`:""; }
 function delayText(S){ if(!S.live) return "tarifeye göre"; const d=S.rawDelay; return d>=1 ? `${d} dk gecikmeli` : d<=-1 ? `${-d} dk erken` : "zamanında"; }
 function renderOverview(){
   ovMarks.innerHTML="";
@@ -539,7 +543,7 @@ function renderOverview(){
     const g=el("g",{class:"ovm",style:"cursor:pointer"},ovMarks);
     const c=el("circle",{cx:p.x,cy:p.y,fill:LINE_COLOR[T.line],stroke:"#fff"},g); if(key===popKey) c.dataset.big=1;
     el("title",{},c).textContent=`${T.name} · ${T.from} → ${T.to}`;
-    const t=el("text",{x:p.x,y:p.y,class:"ovl"},g); t.textContent=`${short(T.name.replace(" Treni","").replace(" Ekspresi",""))} → ${short(T.to)}`;
+    const t=el("text",{x:p.x,y:p.y,class:"ovl"},g); t.textContent=`${short(T.name.replace(" Treni","").replace(" Ekspresi",""))} → ${short(T.to)}${S.live&&S.rawDelay>=1?" · +"+S.rawDelay+" dk":""}`;
     g.addEventListener("click",e=>{ e.stopPropagation(); popKey=key; showPop(S); renderOverview(); });
   });
   if(popKey){ const S=all.find(S=>S.T.slug+"|"+S.service===popKey); if(S) showPop(S); else { popKey=null; $("pop").hidden=true; } }
