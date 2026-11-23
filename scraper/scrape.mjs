@@ -2,7 +2,8 @@
 // birkaç istasyon sorgular, GİTTİ / beklenen saat sınırından konum ve rötarı bulur.
 // Sonuç siteye canlı durum olarak gönderilir (POST /api/push). Kalıcı kayıt tutulmaz.
 //
-//   node scrape.mjs            # bir kez çalış (Actions 30 dk'da bir çağırır)
+//   node scrape.mjs            # bir tur
+//   node scrape.mjs --loop     # LOOP_MIN dk boyunca INTERVAL_MIN dk'da bir tur (Actions böyle çağırır)
 //   node scrape.mjs --dry      # sadece ekrana yaz, gönderme/kaydetme
 // Ortam: SITE_URL, PUSH_SECRET, TCDD_URL (test için), CHROME_PATH (test için)
 
@@ -100,19 +101,22 @@ function makeQuery(browser, T) {
 }
 
 // ---- ana akış ----
-const now = new Date(), nowIso = now.toISOString();
-const prev = await previousStatus();
-const services = activeServices(now, prev);
-log(`${services.length} aktif sefer:`, services.map(s => `${s.T.no}/${s.service}`).join(" "));
-if (!services.length) process.exit(0);
+// --loop: aynı iş içinde LOOP_MIN dakika boyunca her INTERVAL_MIN dakikada bir tur atar
+// (GitHub'ın zamanlanmış işleri sık sık gecikip atlandığı için tazelik buna bağlı kalmasın)
+const LOOP = process.argv.includes("--loop");
+const LOOP_MIN = Number(process.env.LOOP_MIN || 50), INTERVAL_MIN = Number(process.env.INTERVAL_MIN || 15);
 
-// Bilgisayarda kurulu Chrome/Edge kullanılır; ayrıca tarayıcı indirmeye gerek yok
 const CHROME = process.env.CHROME_PATH || ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser",
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
   "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe"].find(p => fileExists(p));
-const browser = await chromium.launch({ args: ["--no-sandbox"], ...(CHROME ? { executablePath: CHROME } : {}) });
-const statuses = [];
-try {
+
+async function pass(browser) {
+  cache.clear();
+  const now = new Date(), nowIso = now.toISOString();
+  const prev = await previousStatus();
+  const services = activeServices(now, prev);
+  log(`${services.length} aktif sefer:`, services.map(s => `${s.T.no}/${s.service}`).join(" "));
+  const statuses = [];
   for (const { T, service, elapsed, delay } of services) {
     const { lo, hi } = queryableRange(T, service, now);
     if (lo === null) { log(`${T.no}/${service}: bugün listelenen istasyonu yok, atlandı`); continue; }
@@ -121,7 +125,7 @@ try {
     const r = await findBoundary(T, makeQuery(browser, T), start, lo, hi, 5);
     const p = prev[`${T.no}|${service}`];
     const s = {
-      trainNo: T.no, slug: T.slug, service, updatedAt: nowIso, ok: r.ok,
+      trainNo: T.no, slug: T.slug, service, updatedAt: new Date().toISOString(), ok: r.ok,
       lastPassedIdx: r.lastPassedIdx, nextIdx: r.nextIdx,
       lastPassed: r.lastPassedIdx != null ? T.stops[r.lastPassedIdx].tcdd : null,
       next: r.nextIdx != null ? T.stops[r.nextIdx].tcdd : null,
@@ -134,16 +138,27 @@ try {
     };
     log(`  -> geçti: ${s.lastPassed ?? "-"} | sıradaki: ${s.next ?? "-"} ${s.nextExpected ?? ""} | rötar: ${s.delayMin ?? "?"} | ${r.queries} sorgu`);
     if (r.ok) statuses.push(s);
+    // her seferi bitince hemen gönder: uzun turlarda site beklemesin
+    if (r.ok && !DRY && SITE && SECRET) {
+      try {
+        const res = await fetch(SITE + "/api/push", { method: "POST", headers: { "content-type": "application/json", "x-push-secret": SECRET }, body: JSON.stringify({ statuses: [s] }) });
+        log(`  siteye gönderildi: ${res.status}`);
+      } catch (e) { log("  siteye gönderilemedi:", e.message); }
+    }
+  }
+  log(`tur bitti: ${statuses.length} sefer${DRY ? " (dry-run, gönderilmedi)" : ""}`);
+}
+
+const browser = await chromium.launch({ args: ["--no-sandbox"], ...(CHROME ? { executablePath: CHROME } : {}) });
+const t0 = Date.now();
+try {
+  while (true) {
+    const ts = Date.now();
+    await pass(browser);
+    if (!LOOP) break;
+    const nextAt = ts + INTERVAL_MIN * 60000;
+    if (nextAt > t0 + LOOP_MIN * 60000) break;
+    log(`sonraki tur ${Math.round((nextAt - Date.now()) / 60000)} dk sonra`);
+    await sleep(Math.max(0, nextAt - Date.now()));
   }
 } finally { await browser.close(); }
-
-if (DRY) { log("dry-run: gönderilmedi"); process.exit(0); }
-
-// canlı durum -> site
-if (SITE && SECRET && statuses.length) {
-  try {
-    const res = await fetch(SITE + "/api/push", { method: "POST", headers: { "content-type": "application/json", "x-push-secret": SECRET }, body: JSON.stringify({ statuses }) });
-    log("siteye gönderildi:", res.status);
-  } catch (e) { log("siteye gönderilemedi:", e.message); }
-}
-log(`${statuses.length} sefer durumu gönderildi`);
