@@ -138,6 +138,6 @@ export async function findBoundary(T, query, startIdx, lo, hi, maxQueries = 8) {
     lastPassedIdx: L, nextIdx: R, nextExpected, delayMin, arrived: L === LAST,
     queries: n,
     observations: [...obs.entries()].sort((a, b) => a[0] - b[0])
-      .map(([idx, o]) => ({ idx, station: T.stops[idx].tcdd, sched: schedAt(T, idx), kind: o.kind, time: o.time || null })),
+      .map(([idx, o]) => ({ idx, station: T.stops[idx].tcdd, sched: schedAt(T, idx), kind: o.kind, time: o.time || null, inferred: !!o.inferred })),
   };
 }

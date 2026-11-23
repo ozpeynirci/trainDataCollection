@@ -2,7 +2,7 @@
 // birkaç istasyon sorgular, GİTTİ / beklenen saat sınırından konum ve rötarı bulur.
 // Sonuç siteye canlı durum olarak gönderilir (POST /api/push). Kalıcı kayıt tutulmaz.
 //
-//   node scrape.mjs            # bir kez çalış (Actions saatte bir çağırır)
+//   node scrape.mjs            # bir kez çalış (Actions 30 dk'da bir çağırır)
 //   node scrape.mjs --dry      # sadece ekrana yaz, gönderme/kaydetme
 // Ortam: SITE_URL, PUSH_SECRET, TCDD_URL (test için), CHROME_PATH (test için)
 
@@ -80,15 +80,19 @@ function makeQuery(browser, T) {
       return { kind: "unknown" };
     }
     const row = rows[T.no];
-    if (!row) return { kind: "absent" };
+    const { min: nowMin } = istanbulNow(new Date());
+    const ago = t => { let d = nowMin - toMin(t); if (d < -720) d += 1440; if (d > 720) d -= 1440; return d; };  // + : geçmişte
+    if (!row) {
+      // TCDD istasyon listesinden geçmiş trenleri bir süre sonra kaldırıyor: tarifesi geçmişse geçti say
+      if (ago(schedAt(T, i)) > 3) { log(`    ${T.no}@${T.stops[i].tcdd}: listede yok, tarifesi geçmiş -> GİTTİ sayıldı`); return { kind: "passed", inferred: true }; }
+      log(`    ${T.no}@${T.stops[i].tcdd}: listede yok`); return { kind: "absent" };
+    }
     const rowTime = (row[3].match(/\d{1,2}:\d{2}/) || [""])[0].padStart(5, "0");
     if (rowTime !== schedAt(T, i)) { log(`    ${T.no}@${T.stops[i].tcdd}: tutarsız satır ${rowTime}`); return { kind: "unknown" }; }
     const c = classify(row[4]);
     // Beklenen saat çoktan geçmişse tren o istasyonu geçmiştir (TCDD bazen "GİTTİ" yazmayı unutuyor)
     if (c.kind === "expected") {
-      const { min } = istanbulNow(new Date());
-      let diff = toMin(c.time) - min; if (diff < -720) diff += 1440; if (diff > 720) diff -= 1440;
-      if (diff < -10) { log(`    ${T.no}@${T.stops[i].tcdd}: "${row[4]}" geçmişte, GİTTİ sayıldı`); return { kind: "passed", inferred: true }; }
+      if (ago(c.time) > 3) { log(`    ${T.no}@${T.stops[i].tcdd}: "${row[4]}" geçmişte, GİTTİ sayıldı`); return { kind: "passed", inferred: true }; }
     }
     log(`    ${T.no}@${T.stops[i].tcdd}: "${row[4]}" -> ${c.kind}`);
     return c;
@@ -124,6 +128,9 @@ try {
       nextExpected: r.nextExpected, delayMin: r.delayMin,
       lastDelay: Number.isFinite(r.delayMin) ? r.delayMin : (p && Number.isFinite(p.lastDelay) ? p.lastDelay : null),
       arrived: r.arrived, queries: r.queries,
+      // istasyon gözlemleri: site tarafında planlanan / gerçekleşen geçmişi bunlardan kurulur
+      obs: r.observations.filter(o => o.kind === "passed" || o.kind === "expected")
+        .map(o => ({ idx: o.idx, sched: o.sched, kind: o.kind, time: o.time, inferred: o.inferred })),
     };
     log(`  -> geçti: ${s.lastPassed ?? "-"} | sıradaki: ${s.next ?? "-"} ${s.nextExpected ?? ""} | rötar: ${s.delayMin ?? "?"} | ${r.queries} sorgu`);
     if (r.ok) statuses.push(s);
