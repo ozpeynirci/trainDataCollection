@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<title>Tren Takip · Yönetim</title>
+<title>Rayda · Yönetim</title>
 <style>
   :root{ --bg:#f3f4f6; --card:#fff; --ink:#18212c; --ink2:#3d4752; --mute:#677283; --line:#e3e7ec; --grid:#eef1f4; --bar:#2a62c9; --barh:#1b4ea8; --err:#c0392b; }
   @media (prefers-color-scheme:dark){ :root{ --bg:#0f1318; --card:#181e26; --ink:#e6eaf0; --ink2:#c3cad3; --mute:#95a0ad; --line:#2a323d; --grid:#222a33; --bar:#5b8ff0; --barh:#86acf5; --err:#ff7a6b; } }
@@ -77,7 +77,7 @@
 
   <div id="app" hidden>
     <header>
-      <div><h1>Tren Takip · Yönetim</h1><div class="sub" id="updated">–</div></div>
+      <div><h1>Rayda · Yönetim</h1><div class="sub" id="updated">–</div></div>
       <div class="tools">
         <div class="chips" id="range">
           <button data-d="1">Bugün</button><button data-d="7" class="on">7 gün</button><button data-d="30">30 gün</button><button data-d="90">90 gün</button>
@@ -118,8 +118,11 @@ let KEY = sessionStorage.getItem("tt_key") || "", DAYS = 7, DATA = null;
 
 async function load(){
   $("updated").textContent = "Yükleniyor…";
-  const r = await fetch(`/api/stats?days=${DAYS}`, { headers: { "x-admin-key": KEY }, cache: "no-store" });
+  let r;
+  try { r = await fetch(`/api/stats?days=${DAYS}`, { headers: { "x-admin-key": encodeURIComponent(KEY) }, cache: "no-store" }); }
+  catch (e) { $("updated").textContent = "Sunucuya ulaşılamadı."; return; }
   if (r.status === 401) { logout("Şifre hatalı."); return; }
+  if (r.status === 503) { logout("Sunucuda yönetim şifresi tanımlı değil (Netlify: ADMIN_PASSWORD). Tanımladıktan sonra yeniden deploy edin."); return; }
   if (!r.ok) { $("updated").textContent = "Veri alınamadı."; return; }
   DATA = await r.json(); render();
   $("updated").textContent = "Güncellendi: " + new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });

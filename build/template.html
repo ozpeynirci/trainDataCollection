@@ -4,19 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d5fd6">
-<title>Tren Takip</title>
+<title>Rayda · Canlı tren takip</title>
 <style>
   :root{
     --bg:#f3f4f6; --card:#fff; --ink:#18212c; --mute:#677283; --line:#e3e7ec;
     --sea:#d7e6f2; --land:#f6f3ec; --prov:#d9d1c3; --lake:#c3d9ee; --river:#a7c6e4;
     --rail:#bdb5a8; --plabel:#a69d8f;
-    --route:#9db8e8; --done:#1d5fd6; --accent:#e4572e; --stfill:#fff; --ok:#22a35a;
+    --route:#9db8e8; --done:#1d5fd6; --accent:#e4572e; --stfill:#fff; --ok:#22a35a; --idle:#b8bec8;
   }
   @media (prefers-color-scheme:dark){
     :root{ --bg:#0f1318; --card:#181e26; --ink:#e6eaf0; --mute:#95a0ad; --line:#2a323d;
       --sea:#132331; --land:#1e242c; --prov:#323a45; --lake:#1b3247; --river:#244661;
       --rail:#4a525c; --plabel:#6c7480;
-      --route:#2f4f86; --done:#5b93f5; --accent:#ff7a50; --stfill:#181e26; }
+      --route:#2f4f86; --done:#5b93f5; --accent:#ff7a50; --stfill:#181e26; --idle:#3a424d; }
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden}
@@ -46,6 +46,7 @@
   .tlist{flex:1 1 auto;overflow:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:10px;align-content:start;padding-bottom:4px}
   .titem{padding:13px 15px;cursor:pointer;display:flex;flex-direction:column;gap:6px;text-align:left;border:1px solid var(--line);background:var(--card);border-radius:14px}
   .titem:hover{border-color:var(--done)}
+  .titem.sel{border-color:var(--done);box-shadow:0 0 0 2px color-mix(in srgb,var(--done) 30%,transparent)}
   .titem .top{display:flex;justify-content:space-between;align-items:center;gap:8px}
   .titem .nm{font-weight:650;font-size:16px}
   .titem .no{color:var(--mute);font-size:12.5px}
@@ -54,11 +55,27 @@
   .titem .hit{color:var(--done);font-size:13px}
   .badge{font-size:12px;border-radius:99px;padding:2px 9px;background:var(--line);color:var(--mute);white-space:nowrap}
   .badge.run{background:color-mix(in srgb,var(--done) 14%,transparent);color:var(--done);font-weight:600}
+  .dly{font-size:12px;font-weight:600;border-radius:99px;padding:1px 7px;margin-left:6px}
+  .dly.late{background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent)}
+  .dly.early{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
   .badge.live{background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
   .mini{height:4px;background:var(--line);border-radius:2px;overflow:hidden}
   .mini>i{display:block;height:100%;background:var(--done)}
   .empty{color:var(--mute);padding:20px 4px}
 
+  .homegrid{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(300px,380px) 1fr;gap:10px}
+  .homegrid .tlist{grid-template-columns:1fr;overflow:auto;min-height:0}
+  .mapslot{display:flex;min-height:0;flex:1 1 auto}
+  .mapslot>.mapcard{flex:1 1 auto}
+  .ldot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:1px}
+  .pop{position:absolute;left:10px;bottom:10px;width:min(330px,calc(100% - 20px));background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:12px 14px;z-index:6;font-size:14px}
+  .pop .pt{font-weight:650;font-size:15.5px;padding-right:22px}
+  .pop .ps{color:var(--mute);font-size:13px;margin:1px 0 8px}
+  .pop .pr{display:flex;justify-content:space-between;gap:10px;margin:3px 0}
+  .pop .pr span:first-child{color:var(--mute)}
+  .pop .px{position:absolute;right:8px;top:6px;border:0;background:none;font-size:20px;color:var(--mute);cursor:pointer;line-height:1}
+  .pop .pgo{margin-top:10px;width:100%;border:0;background:var(--done);color:#fff;border-radius:9px;padding:8px;font-weight:600;cursor:pointer}
+  .ovl{font-weight:600;fill:var(--ink);paint-order:stroke;stroke:var(--land);stroke-linejoin:round;pointer-events:none}
   /* ---- tren ---- */
   #trainView{flex:1 1 auto;display:flex;flex-direction:column;min-height:0}
   .svcs{display:flex;gap:6px;margin:-2px 0 8px;flex:none;flex-wrap:wrap}
@@ -77,6 +94,9 @@
   .mapbtns button{min-width:38px;height:38px;padding:0 10px;font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.12);cursor:pointer}
   .mapbtns button.on{background:var(--done);color:#fff;border-color:var(--done)}
   .mapbtns .z{font-size:20px;line-height:1}
+  #expand{display:none}
+  body.mapfull #homeMapSlot{height:auto!important;flex:1 1 auto}
+  body.mapfull .homegrid .tlist,body.mapfull #home .search{display:none}
   .khead{display:flex;align-items:center;justify-content:space-between;gap:6px}
   .khead .k,.allbtn{white-space:nowrap}
   .mob{display:none}
@@ -88,6 +108,13 @@
   .stop{display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:10px;padding:6px 16px;font-size:14px;cursor:pointer}
   .stop .t{font-variant-numeric:tabular-nums;color:var(--mute);text-align:right}
   .stop .t b{color:var(--ink);font-weight:600}
+  .alllist .stop{grid-template-columns:22px 1fr 46px 78px}
+  .stophead{display:grid;grid-template-columns:22px 1fr 46px 78px;gap:10px;padding:6px 16px 4px;font-size:11px;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;position:sticky;top:-4px;background:var(--card);z-index:1}
+  .stophead span:nth-child(n+3){text-align:right}
+  .dl{font-size:11.5px;font-weight:600;color:var(--mute)}
+  .dl.late{color:var(--accent)}
+  .dl.early{color:var(--ok)}
+  .na{color:var(--mute)}
   .stop.passed .name,.stop.passed .t{color:var(--mute);opacity:.75}
   .stop.next{background:color-mix(in srgb,var(--accent) 7%,transparent)}
   .stop.next .name{font-weight:650}
@@ -109,6 +136,10 @@
     .wrap{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
     h1{font-size:18px}
     .tlist{grid-template-columns:1fr}
+    .homegrid{display:flex;flex-direction:column}
+    #homeMapSlot{order:-1;flex:none;height:46vh;height:46dvh}
+    .homegrid .tlist{flex:1 1 auto}
+    .pop{bottom:56px}
     .status{grid-template-columns:1fr 1fr;gap:10px 12px;padding:11px 13px}
     .v{font-size:15px}
     .k{font-size:10.5px}
@@ -117,6 +148,7 @@
     header{margin-bottom:8px}
     .mapbtns{right:8px;top:auto;bottom:8px;flex-direction:row;gap:5px}
     .mapbtns button{min-width:38px;height:38px;font-size:13px;padding:0 8px}
+    body.ovmode #expand{display:block}
     .dsk{display:none}
     .mob{display:inline}
   }
@@ -129,8 +161,8 @@
     <div class="hleft">
       <button class="back" id="backBtn" type="button" aria-label="Tüm trenler" hidden></button>
       <div style="min-width:0">
-        <h1 id="hTitle">Tren Takip</h1>
-        <div class="route-sub" id="hSub">Anahat trenleri, canlı konum</div>
+        <h1 id="hTitle">Rayda</h1>
+        <div class="route-sub" id="hSub">Canlı tren takip</div>
       </div>
     </div>
     <div class="hright"><div class="live" id="live" hidden><span class="dot"></span><span class="lt" id="liveText">Tarifeye göre</span></div><button class="info" id="infoBtn" type="button" aria-label="Hakkında">i</button></div>
@@ -139,7 +171,10 @@
   <!-- liste -->
   <div id="home">
     <label class="card search"><input id="q" type="search" placeholder="Tren, şehir veya istasyon ara" autocomplete="off" enterkeyhint="search"></label>
-    <div class="tlist" id="tlist"></div>
+    <div class="homegrid">
+      <div class="tlist" id="tlist"></div>
+      <div class="mapslot" id="homeMapSlot"></div>
+    </div>
   </div>
 
   <!-- tren -->
@@ -152,14 +187,21 @@
       <div><div class="khead"><span class="k">Sonraki durak</span><button type="button" class="allbtn" id="allBtn" aria-expanded="false"><span class="dsk">Tüm duraklar</span><span class="mob">Tümü</span><i></i></button></div><div class="v" id="sNext">–</div></div>
       <div class="allpanel" id="allPanel" hidden><div class="alllist" id="allList"></div></div>
     </div>
+    <div class="mapslot" id="trainMapSlot"></div>
+  </div>
+
+  <div id="mapHolder" hidden>
     <div class="card mapcard" id="mapcard">
       <svg id="map" role="img" aria-label="Güzergah haritası"></svg>
+      <div class="pop" id="pop" hidden></div>
       <div class="mapbtns">
         <button class="z" id="zin" type="button" aria-label="Yakınlaştır">+</button>
         <button class="z" id="zout" type="button" aria-label="Uzaklaştır">−</button>
         <button id="follow" type="button" title="Treni takip et">Takip</button>
         <button id="fit" type="button" title="Tüm güzergah">Hat</button>
         <button id="tr" type="button" title="Tüm Türkiye">TR</button>
+        <button id="onlyRun" type="button" title="Sadece yoldaki trenlerin hatlarını göster"><span class="dsk">Yoldakiler</span><span class="mob">Yolda</span></button>
+        <button id="expand" type="button">Büyüt</button>
       </div>
     </div>
   </div>
@@ -203,15 +245,22 @@ TRAINS.forEach(T=>{
 // ---------- zaman ----------
 function trNow(){ const loc=new Date(Date.now()+TZ_OFF*60000); return {ymd:loc.toISOString().slice(0,10), min:loc.getUTCHours()*60+loc.getUTCMinutes()+loc.getUTCSeconds()/60}; }
 function addDays(ymd,k){ const d=new Date(ymd+"T12:00:00Z"); d.setUTCDate(d.getUTCDate()+k); return d.toISOString().slice(0,10); }
-const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleDateString("tr-TR",{day:"numeric",month:"short",timeZone:"UTC"}); };
+const dayLabel = ymd => { const d=new Date(ymd+"T12:00:00Z"); return d.toLocaleDateString("tr-TR",{day:"numeric",month:"long",timeZone:"UTC"}); };
 
 // canlı veri
 let LIVE={}; // "no|service" -> status
 async function fetchLive(){
-  try{ const r=await fetch("/api/status",{cache:"no-store"}); if(!r.ok) throw 0; const j=await r.json(); LIVE = (j && j.trains) || {}; }
+  try{ const r=await fetch("/api/status"); if(!r.ok) throw 0; const j=await r.json(); LIVE = (j && j.trains) || {}; }
   catch(e){ LIVE={}; }
   render();
 }
+function liveAge(L){ return L && L.updatedAt ? (Date.now()-Date.parse(L.updatedAt))/60000 : null; }
+function newestAge(){ const a=Object.values(LIVE).map(liveAge).filter(x=>x!=null); return a.length ? Math.min(...a) : null; }
+const agoTxt = m => m<1 ? "az" : m<60 ? `${Math.max(0,Math.round(m))} dk` : m<1440 ? `${Math.round(m/60)} sa` : `${Math.round(m/1440)} gün`;
+function setPill(age){ const p=$("live"), t=$("liveText"); p.hidden=false;
+  if(age==null){ p.className="live"; t.textContent="Tarifeye göre"; }
+  else if(age<=30){ p.className="live on"; t.textContent=`TCDD verisi · ${agoTxt(age)} önce`; }
+  else { p.className="live"; t.textContent=`Tarifeye göre · son veri ${agoTxt(age)} önce`; } }
 function liveFor(T,service){ const L=LIVE[T.no+"|"+service]; if(!L || !L.updatedAt) return null; const age=(Date.now()-Date.parse(L.updatedAt))/60000; return age<100 ? {...L, age} : null; }
 
 // Bir sefer (kalkış günü) için durum
@@ -219,7 +268,9 @@ function serviceState(T, service){
   const {ymd,min}=trNow();
   const k = Math.round((Date.parse(ymd)-Date.parse(service))/86400000);
   const L = liveFor(T,service);
-  const delay = L && Number.isFinite(L.delayMin) ? L.delayMin : (L && Number.isFinite(L.lastDelay) ? L.lastDelay : 0);
+  // son geçilen istasyondaki gecikme; tahminlerde yalnızca ileri kaydırılır (erken geldiyse tarife korunur)
+  const rawDelay = L && Number.isFinite(L.delayMin) ? L.delayMin : (L && Number.isFinite(L.lastDelay) ? L.lastDelay : 0);
+  const delay = Math.max(0, rawDelay);
   let t = min + k*1440 - T.DEP - delay;
   const st=T.st, N=st.length;
   let running = t>=0 && t<=T.TOTAL, arrived = t>T.TOTAL || !!(L && L.arrived);
@@ -236,7 +287,7 @@ function serviceState(T, service){
       if(nx!=null && nx<N && ((T.dir>0 && sPos>st[nx].s) || (T.dir<0 && sPos<st[nx].s))){ sPos=st[nx].s; atIdx=nx-1; nextIdx=nx; atStation=false; approaching=true; }
     }
   } else if(arrived){ sPos=st[N-1].s; atIdx=N-1; nextIdx=N; }
-  return {T,service,t,delay,running,arrived,sPos,atIdx,nextIdx,atStation,approaching,live:L,
+  return {T,service,t,delay,rawDelay,running,arrived,sPos,atIdx,nextIdx,atStation,approaching,live:L,
           pct: arrived?1: running? Math.min(1,t/T.TOTAL):0};
 }
 // O an ilgilenilen seferler: yolda olanlar; yoksa sıradaki kalkış
@@ -249,6 +300,8 @@ function nextDeparture(T){ const {ymd,min}=trNow(); return min < T.DEP ? {servic
 
 // ---------- liste ----------
 const qI=$("q"), tlist=$("tlist");
+const soonTxt = m => { m=Math.max(0,Math.round(m)); return m<60 ? `${m} dk` : m<180 ? `${Math.floor(m/60)} sa ${m%60} dk` : `${Math.round(m/60)} sa`; };
+let hoverSlug=null;
 function renderList(){
   const q=norm(qI.value).trim(), words=q.split(/\s+/).filter(Boolean);
   const items=TRAINS.map(T=>{
@@ -257,18 +310,20 @@ function renderList(){
     let hit="";
     if(words.length){ const s=T.st.find(s=>words.some(w=>norm(s.name).includes(w)) && s!==T.st[0] && s!==T.st[T.st.length-1]);
       if(s) hit=`${s.name}: ${s.a||s.d}`; }
-    return {T,run,hit};
-  }).filter(Boolean).sort((a,b)=>(b.run.length>0)-(a.run.length>0));
-  tlist.innerHTML = items.length ? items.map(({T,run,hit})=>{
+    return {T,run,hit,nd: run.length?null:nextDeparture(T)};
+  }).filter(Boolean).sort((a,b)=>(b.run.length>0)-(a.run.length>0) || (a.nd&&b.nd ? a.nd.inMin-b.nd.inMin : 0));
+  tlist.innerHTML = items.length ? items.map(({T,run,hit,nd})=>{
     const r=run[0], liveOn = run.some(s=>s.live);
-    const badge = r ? `<span class="badge ${liveOn?"live":"run"}">Yolda${run.length>1?" ×"+run.length:""}</span>` : `<span class="badge">Kalkış ${T.stops[0].d}</span>`;
-    const meta = r ? `<span>${r.atStation? short(r.T.st[r.atIdx].name) : short(r.T.st[r.atIdx].name)+" → "+short(r.T.st[Math.min(r.nextIdx,r.T.st.length-1)].name)}</span><span>%${Math.round(r.pct*100)}</span>`
-                   : `<span>${T.stops[0].d} → ${T.stops[T.stops.length-1].a} · her gün</span><span>${dur(nextDeparture(T).inMin)} sonra</span>`;
-    return `<button class="titem" data-slug="${T.slug}"><div class="top"><span class="nm">${T.name}</span>${badge}</div>
+    const badge = r ? `<span class="badge ${liveOn?"live":"run"}">Yolda${run.length>1?" ×"+run.length:""}</span>` : `<span class="badge">${soonTxt(nd.inMin)} sonra kalkıyor</span>`;
+    const meta = r ? `<span>${r.atStation? short(r.T.st[r.atIdx].name) : short(r.T.st[r.atIdx].name)+" → "+short(r.T.st[Math.min(r.nextIdx,r.T.st.length-1)].name)}</span><span>%${Math.round(r.pct*100)}${delayChip(r)}</span>`
+                   : `<span>Kalkış ${T.stops[0].d} · varış ${T.stops[T.stops.length-1].a}</span><span>her gün</span>`;
+    const sel = popKey && popKey.startsWith(T.slug+"|");
+    return `<button class="titem${sel?" sel":""}" data-slug="${T.slug}"><div class="top"><span class="nm"><span class="ldot" style="background:${LINE_COLOR[T.line]}"></span>${T.name}</span>${badge}</div>
       <div class="rt">${T.from} → ${T.to}</div>${r?`<div class="mini"><i style="width:${r.pct*100}%"></i></div>`:""}
       <div class="meta">${meta}</div>${hit?`<div class="hit">${hit}</div>`:""}</button>`;
   }).join("") : `<div class="empty">Sonuç bulunamadı.</div>`;
-  tlist.querySelectorAll(".titem").forEach(b=>b.onclick=()=>{ location.hash="tren-"+b.dataset.slug; });
+  tlist.querySelectorAll(".titem").forEach(b=>{ b.onclick=()=>{ location.hash="tren-"+b.dataset.slug; };
+    b.onmouseenter=()=>{ hoverSlug=b.dataset.slug; renderOverview(); }; b.onmouseleave=()=>{ hoverSlug=null; renderOverview(); }; });
 }
 qI.addEventListener("input",()=>{ renderList(); clearTimeout(qTimer); qTimer=setTimeout(trackSearch,1500); });
 qI.addEventListener("keydown",e=>{ if(e.key==="Enter"){ clearTimeout(qTimer); trackSearch(); qI.blur(); } });
@@ -285,11 +340,30 @@ el("path",{d:BM.lakes,fill:"var(--lake)"},root);
 el("path",{d:BM.rivers,fill:"none",stroke:"var(--river)","stroke-width":1,"vector-effect":"non-scaling-stroke"},root);
 el("path",{d:BM.rail,fill:"none",stroke:"var(--rail)","stroke-width":1.2,"stroke-dasharray":"4 3","vector-effect":"non-scaling-stroke"},root);
 const plTexts = BM.labels.map(([n,x,y])=>{const t=el("text",{x,y,"text-anchor":"middle",class:"pl"},root); t.textContent=n; return t;});
+// ---- genel görünüm: tüm hatlar ve yoldaki trenler ----
+const LINE_COLOR = {"konya-mavi":"#2563eb","izmir-mavi":"#9333ea","dogu":"#d97706"};
+const ovG = el("g",{},root), ovBaseG = el("g",{},ovG), ovDoneG = el("g",{},ovG), ovMarks = el("g",{});
+const LCUM = {}, ovBase = {};
+for(const [id,L] of Object.entries(LINES)){
+  ovBase[id]=el("polyline",{points:L.route.map(p=>p.join(",")).join(" "),fill:"none",stroke:LINE_COLOR[id],"stroke-width":4,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},ovBaseG);
+  const c=[0]; for(let i=1;i<L.route.length;i++) c.push(c[i-1]+Math.hypot(L.route[i][0]-L.route[i-1][0],L.route[i][1]-L.route[i-1][1])); LCUM[id]=c;
+}
+ovG.appendChild(ovMarks);
+const ALLBOX=(()=>{ const pts=Object.values(LINES).flatMap(L=>L.route); const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]); return {x0:Math.min(...xs),x1:Math.max(...xs),y0:Math.min(...ys),y1:Math.max(...ys)}; })();
+function atLine(id,s){ const R=LINES[id].route, cum=LCUM[id]; s=Math.max(0,Math.min(cum[cum.length-1],s));
+  let lo=0,hi=cum.length-1; while(hi-lo>1){const m=(lo+hi)>>1; if(cum[m]<=s) lo=m; else hi=m;}
+  const f=cum[hi]===cum[lo]?0:(s-cum[lo])/(cum[hi]-cum[lo]); return {x:R[lo][0]+(R[hi][0]-R[lo][0])*f, y:R[lo][1]+(R[hi][1]-R[lo][1])*f}; }
+function sliceLine(id,a,b){ if(a>b) [a,b]=[b,a]; const R=LINES[id].route, c=LCUM[id], pts=[atLine(id,a)];
+  for(let i=0;i<R.length;i++) if(c[i]>a && c[i]<b) pts.push({x:R[i][0],y:R[i][1]});
+  pts.push(atLine(id,b)); return pts.map(p=>p.x+","+p.y).join(" "); }
+const angOf = (p1,p2) => Math.atan2(p2.y-p1.y,p2.x-p1.x)*180/Math.PI;
+const ARROW = "M4.3,0 L-2.7,-3.8 L-1.1,0 L-2.7,3.8 Z";
 const routeLine = el("polyline",{fill:"none",stroke:"var(--route)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},root);
 const doneLine = el("polyline",{fill:"none",stroke:"var(--done)","stroke-width":5,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},root);
 const stG = el("g",{},root), lblG = el("g",{},root), ghostG = el("g",{},root), trainG = el("g",{},root);
 const halo = el("circle",{fill:"var(--accent)",opacity:.2},trainG);
 const core = el("circle",{fill:"var(--accent)",stroke:"#fff"},trainG);
+const tArrow = el("path",{d:ARROW,fill:"#fff"},trainG); let trainAng=0;
 
 let CUR=null; // {T, R, cum, RBOX, dots, service}
 function setupMap(T){
@@ -324,8 +398,10 @@ function applyVB(){
     d.t.style.display=((d.major && z>0.9) || z>3) ? "" : "none";
     d.t.setAttribute("font-size",(d.major?12:11)/z); d.t.setAttribute("stroke-width",3/z); d.t.setAttribute("dy", d.t._up? -9/z : 17/z); });
   plTexts.forEach(t=>{t.setAttribute("font-size",(z<1?10:12)/z); t.style.display = z>0.35 ? "" : "none";});
-  halo.setAttribute("r",16/z); core.setAttribute("r",7/z); core.setAttribute("stroke-width",2.5/z);
+  halo.setAttribute("r",16/z); core.setAttribute("r",7/z); core.setAttribute("stroke-width",2.5/z); tArrow.setAttribute("transform",`rotate(${trainAng}) scale(${1/z})`);
   ghostG.querySelectorAll("circle").forEach(c=>c.setAttribute("r",6/z));
+  ovMarks.querySelectorAll(".mk").forEach(m=>m.setAttribute("transform",`translate(${m.dataset.x},${m.dataset.y}) rotate(${m.dataset.a}) scale(${(m.dataset.big?1.35:1)/z})`));
+  ovMarks.querySelectorAll("text").forEach(t=>{ t.setAttribute("font-size",12/z); t.setAttribute("stroke-width",3/z); t.setAttribute("dx",(t.dataset.big?14:11)/z); t.setAttribute("dy",4/z); t.style.display = z>0.3 ? "" : "none"; });
 }
 const btnF=$("follow");
 function setFollow(v){follow=v;btnF.classList.toggle("on",v);}
@@ -347,14 +423,15 @@ svg.addEventListener("pointermove",e=>{ if(!ptrs.has(e.pointerId)||!gesture) ret
   if(g.n===2 && s.d>0) w=Math.max(MIN_W(),Math.min(MAX_W(),base.w*s.d/g.d));
   const ax=base.x+(s.x-r.left)/r.width*base.w, ay=base.y+(s.y-r.top)/r.height*base.w*aspect();
   vb.w=w; vb.x=ax-(g.x-r.left)/r.width*w; vb.y=ay-(g.y-r.top)/r.height*w*aspect(); applyVB(); });
-const endPtr=e=>{ ptrs.delete(e.pointerId); if(!ptrs.size){ gesture=null; svg.classList.remove("drag"); } else gesture={start:gstate(), vb:{...vb}, moved:true}; };
+let lastMoved=false;
+const endPtr=e=>{ ptrs.delete(e.pointerId); if(!ptrs.size){ lastMoved=!!(gesture&&gesture.moved); gesture=null; svg.classList.remove("drag"); } else gesture={start:gstate(), vb:{...vb}, moved:true}; };
 svg.addEventListener("pointerup",endPtr); svg.addEventListener("pointercancel",endPtr);
 $("zin").onclick=()=>zoomAt(1/1.6,vb.x+vb.w/2,vb.y+vb.w*aspect()/2);
 $("zout").onclick=()=>zoomAt(1.6,vb.x+vb.w/2,vb.y+vb.w*aspect()/2);
-$("fit").onclick=()=>{setFollow(false); const b=CUR.RBOX; fitBox(b.x0,b.y0,b.x1,b.y1);};
+$("fit").onclick=()=>{setFollow(false); const b=VIEW?CUR.RBOX:ALLBOX; fitBox(b.x0,b.y0,b.x1,b.y1);};
 $("tr").onclick=()=>{setFollow(false); fitBox(0,0,W,H,1.02);};
 btnF.onclick=()=>{ setFollow(!follow); if(follow){ if(vb.w>closeW()*1.5) vb.w=closeW(); centerOn(trainXY.x,trainXY.y);} };
-if(window.ResizeObserver) new ResizeObserver(()=>{ if(!CUR) return; if(follow) centerOn(trainXY.x,trainXY.y); else applyVB(); }).observe(svg);
+if(window.ResizeObserver) new ResizeObserver(()=>{ if(svg.clientWidth===0) return; if(VIEW && follow) centerOn(trainXY.x,trainXY.y); else applyVB(); }).observe(svg);
 
 // ---------- tren sayfası ----------
 const allBtn=$("allBtn"), allPanel=$("allPanel"), allList=$("allList");
@@ -364,16 +441,24 @@ document.addEventListener("click",e=>{ if(!allPanel.hidden && !e.target.closest(
 let lastStopsKey="", chosenService=null, firstFrame=true;
 function renderStops(S){
   const T=S.T, st=T.st;
-  const key=[T.slug,S.service,S.running,S.atIdx,S.atStation,S.nextIdx,Math.round(S.delay)].join("|");
+  const key=[T.slug,S.service,S.running,S.atIdx,S.atStation,S.nextIdx,Math.round(S.delay),S.live&&S.live.updatedAt].join("|");
   if(key===lastStopsKey) return; lastStopsKey=key;
   const passedUpTo = S.arrived ? st.length-1 : !S.running ? -1 : (S.atStation ? S.atIdx-1 : S.atIdx);
   const ni = S.running ? S.nextIdx : (S.arrived ? -1 : 0);
-  allList.innerHTML = st.map((s,i)=>{
-    let cls="", tm;
-    if(i<=passedUpTo){ cls="passed"; tm=s.d||s.a; }
-    else if(S.running && S.atStation && i===S.atIdx){ cls="now"; tm=`<b>${fmt(T.DEP+s.dep+S.delay)}</b>`; }
-    else { cls=i===ni?"next":""; const v=fmt(T.DEP+(i===0?s.dep:s.arr)+S.delay); tm=i===ni?`<b>${v}</b>`:v; }
-    return `<div class="stop ${cls}" data-i="${i}"><span class="pin"></span><div class="name">${s.name}</div><div class="t">${tm}</div></div>`;
+  const H = (S.live && S.live.hist) || {}, N=st.length;
+  const plan = i => i===N-1 ? st[i].a : (st[i].d||st[i].a);
+  const badge = d => d==null ? "" : d>=1 ? ` <span class="dl${d>=5?" late":""}">+${d}</span>` : d<=-1 ? ` <span class="dl early">${d}</span>` : "";
+  const dmin = (a,b) => { let d=toMin(a)-toMin(b); if(d<-720) d+=1440; if(d>720) d-=1440; return d; };
+  const head = `<div class="stophead"><span></span><span>İstasyon</span><span>Tarife</span><span>${S.live?"Gerçek / tahmini":"Tahmini"}</span></div>`;
+  allList.innerHTML = head + st.map((s,i)=>{
+    let cls="", act="";
+    const h=H[i];
+    if(i<=passedUpTo){ cls="passed";
+      act = h && h.a ? `${h.x?"~":""}${h.a}${badge(dmin(h.a,h.s||plan(i)))}` : `<span class="na">–</span>`; }
+    else { const now = S.running && S.atStation && i===S.atIdx; cls = now ? "now" : (i===ni ? "next" : "");
+      const eta = fmt(toMin(plan(i)) + S.delay);
+      act = S.delay>0 ? `<b>${eta}</b>${badge(S.delay)}` : `<span class="na">${eta}</span>`; }
+    return `<div class="stop ${cls}" data-i="${i}"><span class="pin"></span><div class="name">${s.name}</div><div class="t">${plan(i)}</div><div class="t act">${act}</div></div>`;
   }).join("");
   allList.querySelectorAll(".stop").forEach(r=>r.addEventListener("click",()=>{ const s=st[+r.dataset.i]; setFollow(false); if(vb.w>closeW()) vb.w=closeW()*0.8; centerOn(s.xy[0],s.xy[1]); }));
 }
@@ -390,13 +475,13 @@ function renderTrain(T){
   const st=T.st, N=st.length;
 
   // canlı rozet
-  const L=S.live; $("live").hidden=false; $("live").className="live"+(L?" on":"");
-  $("liveText").textContent = L ? `Canlı · ${Math.max(0,Math.round(L.age))} dk önce` : "Tarifeye göre";
+  const L=S.live; setPill(liveAge(LIVE[T.no+"|"+S.service]));
   $("dbg").textContent = L ? `Son güncelleme: ${new Date(L.updatedAt).toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Istanbul"})}` : "";
 
   // harita
   const p=atS(S.sPos); trainXY={x:p.x,y:p.y};
   trainG.setAttribute("transform",`translate(${p.x},${p.y})`);
+  trainAng = angOf(atS(S.sPos-T.dir*25), atS(S.sPos+T.dir*25)); tArrow.style.display = S.running ? "" : "none";
   const R=CUR.R;
   const done = !S.running && !S.arrived ? [] : T.dir>0 ? [...R.slice(0,p.i+1),[p.x,p.y]] : [[p.x,p.y],...R.slice(p.i+1)];
   doneLine.setAttribute("points", done.map(q=>q.join(",")).join(" "));
@@ -411,7 +496,9 @@ function renderTrain(T){
     state = S.atStation ? "İstasyonda" : "Yolda";
     $("sWhere").innerHTML = S.atStation ? `${st[S.atIdx].name}<small>istasyonda bekliyor</small>`
       : `${short(st[S.atIdx].name)} → ${short(n.name)}<small>${S.approaching?"istasyona yaklaşıyor":"iki istasyon arasında"}</small>`;
-    $("sNext").innerHTML = `${n.name}<small>${S.approaching ? "birazdan" : fmt(T.DEP+n.arr+S.delay)+" · "+dur(n.arr-S.t)+" sonra"}</small>`;
+    const planN = n.a||n.d, etaN = fmt(toMin(planN)+S.delay);
+    $("sNext").innerHTML = `${n.name}<small>${S.approaching ? "birazdan" : etaN+(S.delay>0?` (tarifede ${planN})`:"")+" · "+dur(n.arr-S.t)+" sonra"}</small>`;
+    if(L) state += S.rawDelay>=1 ? ` · ${S.rawDelay} dk gecikmeli` : S.rawDelay<=-1 ? ` · ${-S.rawDelay} dk erken` : " · zamanında";
     $("sProg").innerHTML = `%${Math.round(S.pct*100)}<small>varışa ${dur(T.TOTAL-S.t)}</small>`;
   } else {
     state = "Kalkmayı bekliyor";
@@ -447,17 +534,85 @@ function route(){
   const m=location.hash.match(/^#tren-([a-z0-9-]+)$/);
   const T=m && TRAINS.find(t=>t.slug===m[1]);
   if(T){
-    if(VIEW!==T){ VIEW=T; track("train",{s:T.slug}); setupMap(T); chosenService=null; lastStopsKey=""; firstFrame=true; allPanel.hidden=true; allBtn.setAttribute("aria-expanded",false); }
+    if(VIEW!==T){ VIEW=T; track("train",{s:T.slug}); setupMap(T); chosenService=pendingService; pendingService=null; lastStopsKey=""; firstFrame=true; allPanel.hidden=true; allBtn.setAttribute("aria-expanded",false); }
+    setFull(false); $("trainMapSlot").appendChild($("mapcard")); setMode("train");
     $("home").hidden=true; $("trainView").hidden=false; $("backBtn").hidden=false;
     $("hTitle").textContent=T.name; $("hSub").innerHTML=`${T.from} → ${T.to}<span class="dsk"> · her gün ${T.stops[0].d}</span>`;
-    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)}`;
+    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)} · Rayda`;
   } else {
-    VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true; $("live").hidden=true;
-    $("hTitle").textContent="Tren Takip"; $("hSub").textContent="Anahat trenleri, canlı konum"; document.title="Tren Takip";
+    const wasTrain = VIEW!==null || !ovInit;
+    VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true;
+    $("homeMapSlot").appendChild($("mapcard")); setMode("ov");
+    if(wasTrain){ ovInit=true; requestAnimationFrame(()=>{ setFollow(false); fitBox(ALLBOX.x0,ALLBOX.y0,ALLBOX.x1,ALLBOX.y1,1.08); }); }
+    $("hTitle").textContent="Rayda"; $("hSub").textContent="Canlı tren takip"; document.title="Rayda · Canlı tren takip";
   }
   render();
 }
-function render(){ if(VIEW) renderTrain(VIEW); else renderList(); }
+function render(){ if(VIEW) renderTrain(VIEW); else { setPill(newestAge()); renderList(); renderOverview(); } }
+let ovInit=false, popKey=null, pendingService=null;
+function setMode(m){
+  const ov = m==="ov";
+  ovG.style.display = ov ? "" : "none";
+  [routeLine,doneLine,stG,lblG,ghostG,trainG].forEach(e=>e.style.display = ov ? "none" : "");
+  btnF.style.display = ov ? "none" : "";
+  $("onlyRun").style.display = ov ? "" : "none"; document.body.classList.toggle("ovmode", ov);
+  if(!ov) $("pop").hidden=true;
+}
+function delayChip(S){ if(!S||!S.live) return ""; const d=S.rawDelay; return d>=1?`<span class="dly late">+${d} dk</span>`:d<=-1?`<span class="dly early">${-d} dk erken</span>`:""; }
+function delayText(S){ if(!S.live) return "tarifeye göre"; const d=S.rawDelay; return d>=1 ? `${d} dk gecikmeli` : d<=-1 ? `${-d} dk erken` : "zamanında"; }
+let ONLY_RUN = (()=>{ try{ return localStorage.getItem("vg_onlyrun")!=="0"; }catch(e){ return true; } })();
+function renderOverview(){
+  ovMarks.innerHTML=""; ovDoneG.innerHTML="";
+  const all=[];
+  TRAINS.forEach(T=>servicesFor(T).forEach(S=>all.push(S)));
+  const active=new Set(all.map(S=>S.T.line)), hide = ONLY_RUN && active.size>0;
+  $("onlyRun").classList.toggle("on", ONLY_RUN);
+  for(const id in ovBase){ const on=active.has(id), b=ovBase[id];
+    b.style.display = (!on && hide) ? "none" : "";
+    b.setAttribute("stroke", on ? LINE_COLOR[id] : "var(--idle)");
+    b.setAttribute("opacity", on ? .3 : 1); b.setAttribute("stroke-width", on ? 4 : 2.5); }
+  // gidilen kısım koyu
+  all.forEach(S=>{ const T=S.T;
+    el("polyline",{points:sliceLine(T.line,T.st[0].s,S.sPos),fill:"none",stroke:LINE_COLOR[T.line],"stroke-width":4.5,"stroke-linejoin":"round","stroke-linecap":"round","vector-effect":"non-scaling-stroke"},ovDoneG); });
+  all.forEach(S=>{
+    const T=S.T, p=atLine(T.line,S.sPos), key=T.slug+"|"+S.service, big = key===popKey || T.slug===hoverSlug;
+    const ang=angOf(atLine(T.line,S.sPos-T.dir*25), atLine(T.line,S.sPos+T.dir*25));
+    const g=el("g",{class:"ovm",style:"cursor:pointer"},ovMarks);
+    const m=el("g",{class:"mk"},g); m.dataset.x=p.x; m.dataset.y=p.y; m.dataset.a=ang; if(big) m.dataset.big=1;
+    const c=el("circle",{r:7,fill:LINE_COLOR[T.line],stroke:"#fff","stroke-width":2.5},m);
+    el("path",{d:ARROW,fill:"#fff"},m);
+    el("title",{},c).textContent=`${T.name} · ${T.from} → ${T.to}`;
+    const t=el("text",{x:p.x,y:p.y,class:"ovl"},g); if(big) t.dataset.big=1;
+    t.textContent=`${short(T.name.replace(" Treni","").replace(" Ekspresi",""))} → ${short(T.to)}${S.live&&S.rawDelay>=1?" · +"+S.rawDelay+" dk":""}`;
+    g.addEventListener("click",e=>{ e.stopPropagation(); popKey=key; render();
+      const card=tlist.querySelector(`[data-slug="${T.slug}"]`); if(card) card.scrollIntoView({block:"nearest",behavior:"smooth"}); });
+  });
+  if(popKey){ const S=all.find(S=>S.T.slug+"|"+S.service===popKey); if(S) showPop(S); else { popKey=null; $("pop").hidden=true; } }
+  applyVB();
+}
+$("onlyRun").onclick=()=>{ ONLY_RUN=!ONLY_RUN; try{ localStorage.setItem("vg_onlyrun",ONLY_RUN?"1":"0"); }catch(e){} renderOverview(); };
+const isMob = () => matchMedia("(max-width:760px)").matches;
+function setFull(v){ if(document.body.classList.contains("mapfull")===v) return;
+  document.body.classList.toggle("mapfull",v); $("expand").textContent = v ? "Küçült" : "Büyüt";
+  if(!VIEW) requestAnimationFrame(()=>{ setFollow(false); fitBox(ALLBOX.x0,ALLBOX.y0,ALLBOX.x1,ALLBOX.y1,1.08); }); }
+$("expand").onclick=e=>{ e.stopPropagation(); setFull(!document.body.classList.contains("mapfull")); };
+svg.addEventListener("click",()=>{ if(!VIEW && isMob() && !lastMoved) setFull(true); });
+function showPop(S){
+  const T=S.T, st=T.st, n=st[Math.min(S.nextIdx,st.length-1)];
+  const where = S.atStation ? st[S.atIdx].name : `${short(st[S.atIdx].name)} → ${short(n.name)}`;
+  const planN=n.a||n.d, eta=fmt(toMin(planN)+S.delay);
+  const pop=$("pop"); pop.hidden=false;
+  pop.innerHTML=`<button class="px" aria-label="Kapat">×</button>
+    <div class="pt"><span class="ldot" style="background:${LINE_COLOR[T.line]}"></span>${T.name}</div>
+    <div class="ps">${T.from} → ${T.to} · ${dayLabel(S.service)} ${T.stops[0].d}</div>
+    <div class="pr"><span>Durum</span><span>${delayText(S)}</span></div>
+    <div class="pr"><span>Konum</span><span>${where}</span></div>
+    <div class="pr"><span>Sonraki durak</span><span>${short(n.name)} ${eta}</span></div>
+    <div class="pr"><span>Yolculuk</span><span>%${Math.round(S.pct*100)}</span></div>
+    <button class="pgo">Ayrıntılar</button>`;
+  pop.querySelector(".px").onclick=e=>{ e.stopPropagation(); popKey=null; pop.hidden=true; render(); };
+  pop.querySelector(".pgo").onclick=()=>{ pendingService=S.service; popKey=null; location.hash="tren-"+T.slug; };
+}
 $("backBtn").onclick=()=>{ location.hash=""; };
 const modal=$("modal");
 $("infoBtn").onclick=()=>{modal.hidden=false;};
@@ -467,7 +622,7 @@ window.addEventListener("hashchange",route);
 track("visit",{r:document.referrer||null});
 route(); fetchLive();
 setInterval(render,5000);
-setInterval(fetchLive,60000);
+setInterval(fetchLive,120000);
 </script>
 </body>
 </html>
