@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1d5fd6">
-<title>Vagonda · Canlı tren takip</title>
+<title>Rayda · Canlı tren takip</title>
 <style>
   :root{
     --bg:#f3f4f6; --card:#fff; --ink:#18212c; --mute:#677283; --line:#e3e7ec;
@@ -161,7 +161,7 @@
     <div class="hleft">
       <button class="back" id="backBtn" type="button" aria-label="Tüm trenler" hidden></button>
       <div style="min-width:0">
-        <h1 id="hTitle">Vagonda</h1>
+        <h1 id="hTitle">Rayda</h1>
         <div class="route-sub" id="hSub">Canlı tren takip</div>
       </div>
     </div>
@@ -538,13 +538,13 @@ function route(){
     setFull(false); $("trainMapSlot").appendChild($("mapcard")); setMode("train");
     $("home").hidden=true; $("trainView").hidden=false; $("backBtn").hidden=false;
     $("hTitle").textContent=T.name; $("hSub").innerHTML=`${T.from} → ${T.to}<span class="dsk"> · her gün ${T.stops[0].d}</span>`;
-    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)} · Vagonda`;
+    document.title=`${T.name} · ${short(T.from)} → ${short(T.to)} · Rayda`;
   } else {
     const wasTrain = VIEW!==null || !ovInit;
     VIEW=null; $("home").hidden=false; $("trainView").hidden=true; $("backBtn").hidden=true;
     $("homeMapSlot").appendChild($("mapcard")); setMode("ov");
     if(wasTrain){ ovInit=true; requestAnimationFrame(()=>{ setFollow(false); fitBox(ALLBOX.x0,ALLBOX.y0,ALLBOX.x1,ALLBOX.y1,1.08); }); }
-    $("hTitle").textContent="Vagonda"; $("hSub").textContent="Canlı tren takip"; document.title="Vagonda · Canlı tren takip";
+    $("hTitle").textContent="Rayda"; $("hSub").textContent="Canlı tren takip"; document.title="Rayda · Canlı tren takip";
   }
   render();
 }
