@@ -55,6 +55,29 @@
   .foot{color:var(--mute);font-size:12.5px;margin-top:14px;line-height:1.6}
   .foot label{display:inline-flex;gap:6px;align-items:center;cursor:pointer}
   table.sr{position:absolute;left:-9999px}
+  .tabs{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
+  .tabs button{border:0;background:none;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:14px;color:var(--mute)}
+  .tabs button.on{background:var(--ink);color:var(--card)}
+  .line{padding:12px 16px;margin-bottom:10px}
+  .lhead{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-bottom:6px}
+  .lhead h3{margin:0;font-size:15px;display:flex;align-items:center;gap:8px}
+  .ldot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .trow{display:flex;align-items:center;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+  .trow .ti{flex:1;min-width:0}
+  .trow .tn{font-weight:600;font-size:14px}
+  .trow .tm{color:var(--mute);font-size:12.5px}
+  .sw{position:relative;width:42px;height:24px;flex:0 0 auto}
+  .sw input{opacity:0;width:0;height:0;position:absolute}
+  .sw span{position:absolute;inset:0;background:var(--grid);border:1px solid var(--line);border-radius:99px;cursor:pointer;transition:background .15s}
+  .sw span::after{content:"";position:absolute;width:18px;height:18px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .15s}
+  .sw input:checked + span{background:var(--bar);border-color:var(--bar)}
+  .sw input:checked + span::after{transform:translateX(18px)}
+  .sw input:focus-visible + span{outline:2px solid var(--bar);outline-offset:2px}
+  .cap{padding:12px 16px;margin-bottom:10px;display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .cap .warn{color:var(--err)}
+  .savebar{display:flex;gap:10px;align-items:center}
+  .btn.save{background:var(--bar);border-color:var(--bar);color:#fff}
+  .btn.save:disabled{opacity:.5;cursor:default}
   @media (max-width:760px){
     .wrap{padding-left:max(10px,env(safe-area-inset-left));padding-right:max(10px,env(safe-area-inset-right))}
     .kpis{grid-template-columns:1fr 1fr}
@@ -70,14 +93,16 @@
 <div class="wrap">
   <div class="card login" id="login">
     <h2>Yönetim</h2>
-    <div class="sub">Ziyaret istatistikleri için şifreyi girin.</div>
-    <form id="lf"><input id="pw" type="password" autocomplete="current-password" placeholder="Şifre" required>
+    <div class="sub">Devam etmek için giriş yapın.</div>
+    <form id="lf"><input id="un" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Kullanıcı adı" required style="margin-bottom:0">
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Şifre" required>
     <div class="err" id="lerr"></div><button class="btn primary" type="submit">Giriş</button></form>
   </div>
 
   <div id="app" hidden>
     <header>
       <div><h1>Rayda · Yönetim</h1><div class="sub" id="updated">–</div></div>
+      <div class="tabs" id="tabs"><button data-t="stats" class="on">İstatistik</button><button data-t="trains">Trenler</button></div>
       <div class="tools">
         <div class="chips" id="range">
           <button data-d="1">Bugün</button><button data-d="7" class="on">7 gün</button><button data-d="30">30 gün</button><button data-d="90">90 gün</button>
@@ -86,6 +111,13 @@
       </div>
     </header>
 
+    <div id="trainsTab" hidden>
+      <div class="card cap"><div><b id="capN">–</b><div class="sub" id="capD"></div></div>
+        <div class="savebar"><span class="sub" id="saveMsg"></span><button class="btn save" id="save" type="button" disabled>Kaydet</button></div></div>
+      <div id="lines"></div>
+      <div class="foot">Kapalı trenler sitede görünmez ve TCDD'den sorgulanmaz. Değişiklik, kaydettikten sonra en geç bir dakika içinde sitede, bir sonraki turda veri toplayıcıda geçerli olur.</div>
+    </div>
+    <div id="statsTab">
     <div class="kpis">
       <div class="card kpi"><div class="k">Ziyaret</div><div class="v" id="kVisits">–</div><div class="d" id="kVisitsD"></div></div>
       <div class="card kpi"><div class="k">Tekil ziyaretçi</div><div class="v" id="kUniq">–</div><div class="d">günlük tekillerin toplamı</div></div>
@@ -107,32 +139,46 @@
       <label><input type="checkbox" id="notrack"> Bu tarayıcıdan yapılan ziyaretleri sayma</label><br>
       Veriler anonimdir: IP adresi ya da kişisel bilgi saklanmaz. Tekil ziyaretçi her gün ayrı sayılır, günler arası eşleştirilmez.
     </div>
+    </div>
   </div>
 </div>
 
 <script>
-const TRAINS = __TRAINMETA__;
+const CATALOG = __CATALOG__;
+const TRAINS = Object.fromEntries(CATALOG.map(t => [t.slug, t]));
 const $ = id => document.getElementById(id);
 const nf = new Intl.NumberFormat("tr-TR");
-let KEY = sessionStorage.getItem("tt_key") || "", DAYS = 7, DATA = null;
+let TOK = null, DAYS = 7, DATA = null, TAB = "stats";
+try { const t = JSON.parse(sessionStorage.getItem("rayda_tok") || "null"); if (t && t.exp > Date.now() + 60000) TOK = t.token; } catch (_) {}
+const authH = () => ({ authorization: "Bearer " + TOK });
 
 async function load(){
   $("updated").textContent = "Yükleniyor…";
   let r;
-  try { r = await fetch(`/api/stats?days=${DAYS}`, { headers: { "x-admin-key": encodeURIComponent(KEY) }, cache: "no-store" }); }
+  try { r = await fetch(`/api/stats?days=${DAYS}`, { headers: authH(), cache: "no-store" }); }
   catch (e) { $("updated").textContent = "Sunucuya ulaşılamadı."; return; }
-  if (r.status === 401) { logout("Şifre hatalı."); return; }
-  if (r.status === 503) { logout("Sunucuda yönetim şifresi tanımlı değil (Netlify: ADMIN_PASSWORD). Tanımladıktan sonra yeniden deploy edin."); return; }
+  if (r.status === 401) { logout("Oturumun süresi doldu, yeniden giriş yapın."); return; }
+  if (r.status === 503) { logout("Sunucuda yönetim şifresi tanımlı değil (ADMIN_PASSWORD)."); return; }
   if (!r.ok) { $("updated").textContent = "Veri alınamadı."; return; }
   DATA = await r.json(); render();
   $("updated").textContent = "Güncellendi: " + new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
-function logout(msg){ sessionStorage.removeItem("tt_key"); KEY=""; $("app").hidden=true; $("login").hidden=false; $("lerr").textContent=msg||""; }
-$("lf").onsubmit = e => { e.preventDefault(); KEY=$("pw").value; sessionStorage.setItem("tt_key",KEY);
-  try{ if(localStorage.getItem("tt_admin")===null) localStorage.setItem("tt_admin","1"); }catch(_){}
-  $("login").hidden=true; $("app").hidden=false; syncNotrack(); load(); };
+function logout(msg){ sessionStorage.removeItem("rayda_tok"); TOK=null; $("app").hidden=true; $("login").hidden=false; $("lerr").textContent=msg||""; $("pw").value=""; }
+function enter(){ try{ if(localStorage.getItem("tt_admin")===null) localStorage.setItem("tt_admin","1"); }catch(_){}
+  $("login").hidden=true; $("app").hidden=false; syncNotrack(); load(); loadConfig(); }
+$("lf").onsubmit = async e => { e.preventDefault(); $("lerr").textContent="";
+  const btn=$("lf").querySelector("button"); btn.disabled=true;
+  let r; try { r = await fetch("/api/login", { method:"POST", headers:{ "content-type":"application/json" }, body: JSON.stringify({ user:$("un").value, pass:$("pw").value }) }); }
+  catch(_) { $("lerr").textContent="Sunucuya ulaşılamadı."; btn.disabled=false; return; }
+  btn.disabled=false;
+  if (!r.ok) { $("lerr").textContent = r.status===401 ? "Kullanıcı adı ya da şifre hatalı." : (await r.text()) || "Giriş yapılamadı."; return; }
+  const t = await r.json(); TOK=t.token; sessionStorage.setItem("rayda_tok", JSON.stringify(t)); $("pw").value=""; enter(); };
+$("tabs").querySelectorAll("button").forEach(b => b.onclick = () => { TAB=b.dataset.t;
+  $("tabs").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));
+  $("statsTab").hidden = TAB!=="stats"; $("trainsTab").hidden = TAB!=="trains";
+  $("range").style.display = TAB==="stats" ? "" : "none"; if (TAB==="stats" && DATA) render(); });
 $("logout").onclick = () => logout();
-$("refresh").onclick = load;
+$("refresh").onclick = () => { load(); loadConfig(); };
 $("range").querySelectorAll("button").forEach(b => b.onclick = () => { $("range").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); DAYS=+b.dataset.d; load(); });
 function syncNotrack(){ try{ $("notrack").checked = localStorage.getItem("tt_admin")==="1"; }catch(_){} }
 $("notrack").onchange = e => { try{ localStorage.setItem("tt_admin", e.target.checked ? "1" : "0"); }catch(_){} };
@@ -212,7 +258,52 @@ function render(){
 }
 
 let rzT; addEventListener("resize", () => { clearTimeout(rzT); rzT = setTimeout(() => { if (DATA) render(); }, 150); });
-if (KEY) { $("login").hidden = true; $("app").hidden = false; syncNotrack(); load(); }
+
+// ---- Trenler: hangi seferler takip edilsin ----
+let ENABLED = null, SAVED = "";
+const LINES = [...new Set(CATALOG.map(t => t.line))];
+async function loadConfig(){
+  try { const r = await fetch("/api/config", { cache:"no-store" }); const j = await r.json(); ENABLED = new Set(j.enabled ?? CATALOG.map(t=>t.slug)); }
+  catch(_) { ENABLED = new Set(CATALOG.map(t=>t.slug)); }
+  SAVED = [...ENABLED].sort().join(","); renderTrains();
+}
+const hm = m => `${Math.floor(m/60)} sa${m%60?` ${m%60} dk`:""}`;
+function capacity(){
+  // günün her dakikasında yolda olan açık sefer sayısı (24 saati aşan seferler aynı anda iki kez yolda olabilir)
+  let max = 0, at = 0;
+  for (let t = 0; t < 1440; t += 5) {
+    let n = 0;
+    for (const T of CATALOG) if (ENABLED.has(T.slug)) for (let k = 0; k < 3; k++) { const e = t - T.dep + k*1440; if (e >= 0 && e <= T.dur) n++; }
+    if (n > max) { max = n; at = t; }
+  }
+  return { max, at };
+}
+function renderTrains(){
+  if (!ENABLED) return;
+  $("lines").innerHTML = LINES.map(L => { const ts = CATALOG.filter(t=>t.line===L), on = ts.filter(t=>ENABLED.has(t.slug)).length;
+    return `<div class="card line"><div class="lhead"><h3><span class="ldot" style="background:${ts[0].color}"></span>${esc(ts[0].lineName)}</h3>
+      <label class="sw" title="Hattın tüm seferleri"><input type="checkbox" data-line="${L}" ${on===ts.length?"checked":""}><span></span></label></div>
+      ${ts.map(t=>`<div class="trow"><div class="ti"><div class="tn">${esc(t.from)} → ${esc(t.to)}</div>
+        <div class="tm">${t.no} · her gün ${t.depS} kalkış · ${hm(t.dur)}</div></div>
+        <label class="sw"><input type="checkbox" data-slug="${t.slug}" ${ENABLED.has(t.slug)?"checked":""}><span></span></label></div>`).join("")}</div>`; }).join("");
+  $("lines").querySelectorAll("input[data-slug]").forEach(c => c.onchange = () => { c.checked ? ENABLED.add(c.dataset.slug) : ENABLED.delete(c.dataset.slug); renderTrains(); });
+  $("lines").querySelectorAll("input[data-line]").forEach(c => c.onchange = () => { CATALOG.filter(t=>t.line===c.dataset.line).forEach(t => c.checked ? ENABLED.add(t.slug) : ENABLED.delete(t.slug)); renderTrains(); });
+  const { max, at } = capacity(), tour = Math.round(max * 1.5);
+  $("capN").textContent = `${ENABLED.size} / ${CATALOG.length} sefer açık`;
+  $("capD").innerHTML = max ? `Aynı anda en çok ${max} sefer yolda (${String(Math.floor(at/60)).padStart(2,"0")}:${String(at%60).padStart(2,"0")} civarı) · tahmini tur süresi ≈ ${tour} dk`
+    + (tour > 15 ? ` · <span class="warn">15 dakikayı aşıyor, güncellemeler seyrekleşir</span>` : "") : "Hiç sefer açık değil.";
+  const dirty = [...ENABLED].sort().join(",") !== SAVED;
+  $("save").disabled = !dirty; if (dirty) $("saveMsg").textContent = "Kaydedilmemiş değişiklik var";
+}
+$("save").onclick = async () => {
+  $("save").disabled = true; $("saveMsg").textContent = "Kaydediliyor…";
+  let r; try { r = await fetch("/api/config", { method:"POST", headers:{ ...authH(), "content-type":"application/json" }, body: JSON.stringify({ enabled:[...ENABLED] }) }); }
+  catch(_) { $("saveMsg").textContent = "Sunucuya ulaşılamadı."; $("save").disabled=false; return; }
+  if (r.status === 401) { logout("Oturumun süresi doldu, yeniden giriş yapın."); return; }
+  if (!r.ok) { $("saveMsg").textContent = "Kaydedilemedi."; $("save").disabled=false; return; }
+  SAVED = [...ENABLED].sort().join(","); $("saveMsg").textContent = "Kaydedildi."; renderTrains(); $("saveMsg").textContent = "Kaydedildi.";
+};
+if (TOK) enter();
 </script>
 </body>
 </html>

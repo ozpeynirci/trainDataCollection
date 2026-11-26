@@ -11,7 +11,17 @@ out = t.replace("__BASEMAP__", bm).replace("__LINES__", json.dumps(lines, ensure
 open("site/index.html", "w").write(out)
 print("index.html", len(out) // 1024, "KB")
 
-meta = {x["slug"]: {"name": x["name"], "from": x["from"], "to": x["to"]} for x in trains}
-adm = open("build/admin_template.html").read().replace("__TRAINMETA__", json.dumps(meta, ensure_ascii=False))
+def mins(t): h, m = map(int, t.split(":")); return h * 60 + m
+COLORS = {"konya-mavi": "#2563eb", "izmir-mavi": "#9333ea", "dogu": "#d97706"}
+cat = []
+for x in trains:
+    dep = mins(x["stops"][0]["d"]); prev = dep; dur = 0
+    for s in x["stops"][1:]:
+        v = mins(s["a"] or s["d"])
+        while v < prev: v += 1440
+        prev = v; dur = v - dep
+    cat.append({"slug": x["slug"], "no": x["no"], "name": x["name"], "line": x["line"], "lineName": x["name"],
+                "color": COLORS.get(x["line"], "#64748b"), "from": x["from"], "to": x["to"], "depS": x["stops"][0]["d"], "dep": dep, "dur": dur})
+adm = open("build/admin_template.html").read().replace("__CATALOG__", json.dumps(cat, ensure_ascii=False))
 open("site/admin.html", "w").write(adm)
 print("admin.html", len(adm) // 1024, "KB")
