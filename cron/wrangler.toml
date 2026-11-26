@@ -1,6 +1,15 @@
 name = "rayda-cron"
 main = "index.js"
 compatibility_date = "2026-11-01"
+workers_dev = true
+preview_urls = false
 
 [triggers]
 crons = ["3 * * * *"]   # her saat :03'te (UTC)
+
+# panelde açılan kayıtlar her yayında sıfırlanmasın
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+invocation_logs = true
+persist = true
