@@ -19,6 +19,12 @@ const MIN_GAP_MS = 2000;          // TCDD'ye iki sorgu arası en az bu kadar
 const log = (...a) => console.log(new Date().toISOString().slice(11, 19), ...a);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
+// yönetim panelinde açık bırakılan seferler (okunamazsa hepsi)
+async function enabledSlugs() {
+  if (!SITE) return null;
+  try { const r = await fetch(SITE + "/api/config"); if (!r.ok) return null; const j = await r.json(); return Array.isArray(j.enabled) ? new Set(j.enabled) : null; }
+  catch { return null; }
+}
 async function previousStatus() {
   if (SITE) try {
     const r = await fetch(SITE + "/api/status", { headers: { "cache-control": "no-cache" } });
@@ -114,7 +120,8 @@ async function pass(browser) {
   cache.clear();
   const now = new Date(), nowIso = now.toISOString();
   const prev = await previousStatus();
-  const services = activeServices(now, prev);
+  const enabled = await enabledSlugs();
+  const services = activeServices(now, prev).filter(x => !enabled || enabled.has(x.T.slug));
   log(`${services.length} aktif sefer:`, services.map(s => `${s.T.no}/${s.service}`).join(" "));
   const statuses = [];
   for (const { T, service, elapsed, delay } of services) {
