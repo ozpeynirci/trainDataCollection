@@ -567,8 +567,9 @@ function renderOverview(){
   TRAINS.forEach(T=>servicesFor(T).forEach(S=>all.push(S)));
   const active=new Set(all.map(S=>S.T.line)), hide = ONLY_RUN && active.size>0;
   $("onlyRun").classList.toggle("on", ONLY_RUN);
+  const tracked=new Set(TRAINS.map(T=>T.line));
   for(const id in ovBase){ const on=active.has(id), b=ovBase[id];
-    b.style.display = (!on && hide) ? "none" : "";
+    b.style.display = (!tracked.has(id) || (!on && hide)) ? "none" : "";
     b.setAttribute("stroke", on ? LINE_COLOR[id] : "var(--idle)");
     b.setAttribute("opacity", on ? .3 : 1); b.setAttribute("stroke-width", on ? 4 : 2.5); }
   // gidilen kısım koyu
@@ -620,7 +621,14 @@ $("closeModal").onclick=()=>{modal.hidden=true;};
 modal.addEventListener("click",e=>{ if(e.target===modal) modal.hidden=true; });
 window.addEventListener("hashchange",route);
 track("visit",{r:document.referrer||null});
-route(); fetchLive();
+// yönetim panelinde kapatılan seferleri çıkar (yanıt gelmezse hepsi gösterilir)
+(async()=>{
+  try{ const ctl=new AbortController(), to=setTimeout(()=>ctl.abort(),2500);
+    const j=await (await fetch("/api/config",{signal:ctl.signal})).json(); clearTimeout(to);
+    if(Array.isArray(j.enabled)){ const on=new Set(j.enabled); for(let i=TRAINS.length-1;i>=0;i--) if(!on.has(TRAINS[i].slug)) TRAINS.splice(i,1); }
+  }catch(_){}
+  route(); fetchLive();
+})();
 setInterval(render,5000);
 setInterval(fetchLive,120000);
 </script>
