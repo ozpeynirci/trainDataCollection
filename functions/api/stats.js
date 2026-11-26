@@ -1,6 +1,7 @@
-// Admin istatistikleri. "x-admin-key" başlığı ADMIN_PASSWORD ile eşleşmeli.
+// Admin istatistikleri. Geçerli yönetim oturumu (Authorization: Bearer) gerekir.
 // Biten günler bir kez toplanıp "rollup" tablosuna yazılır ve ham olayları silinir.
-import { db, same, trDay } from "../../lib/db.js";
+import { db, trDay } from "../../lib/db.js";
+import { requireAdmin } from "../../lib/auth.js";
 
 const inc = (o, k, n = 1) => { if (k == null || k === "") return; o[k] = (o[k] || 0) + n; };
 async function aggregateDay(D, day) {
@@ -19,11 +20,7 @@ async function aggregateDay(D, day) {
 }
 
 export async function onRequestGet({ request, env }) {
-  const pass = env.ADMIN_PASSWORD;
-  if (!pass) return new Response("ADMIN_PASSWORD tanımlı değil", { status: 503 });
-  let given = request.headers.get("x-admin-key") || "";
-  try { given = decodeURIComponent(given); } catch {}
-  if (!same(given.trim(), pass.trim())) return new Response("Yetkisiz", { status: 401 });
+  const deny = await requireAdmin(request, env); if (deny) return deny;
   const days = Math.max(1, Math.min(90, parseInt(new URL(request.url).searchParams.get("days") || "7", 10) || 7));
   const D = await db(env), today = trDay();
   const list = [];
